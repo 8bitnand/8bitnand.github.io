@@ -423,4 +423,3 @@ This blog is built with help from open-source tools and publishing platforms:
 - [Prism / Eleventy Syntax Highlight](https://www.11ty.dev/docs/plugins/syntaxhighlight/) for code highlighting.
 - [markdown-it-anchor](https://github.com/valeriangalliat/markdown-it-anchor) for heading links.
 - [GitHub Gist](https://gist.github.com/) for embeddable code snippets.
-- Hashnode and Wix, where earlier versions of several articles were originally published.
