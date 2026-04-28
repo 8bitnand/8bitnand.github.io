@@ -1,0 +1,16 @@
+{
+  "name": "custom-github-pages-blog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A custom Eleventy blog for GitHub Pages with Markdown posts, colocated media, search, and related articles.",
+  "scripts": {
+    "dev": "eleventy --config=.eleventy.cjs --serve",
+    "build": "eleventy --config=.eleventy.cjs",
+    "clean": "rm -rf _site"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.2",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.1",
+    "markdown-it-anchor": "^9.2.0"
+  }
+}

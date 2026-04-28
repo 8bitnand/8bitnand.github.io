@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if title %}{{ title }} | {% endif %}{{ site.title }}</title>
+    <meta name="description" content="{{ description or site.description }}">
+    <link rel="canonical" href="{{ page.url | absoluteUrl(site.url) }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="/feed.xml">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["$", "$"], ["\\(", "\\)"]],
+          displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          processEscapes: true
+        },
+        svg: {
+          fontCache: "global"
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script src="/assets/js/main.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="{{ site.title }} home">
+        <img class="brand-mark" src="/assets/img/brand-logo.jpg" alt="" width="34" height="34">
+        <span>{{ site.title }}</span>
+      </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/archive/">Archive</a>
+        <a href="/feed.xml">RSS</a>
+        <a href="{{ site.github }}">GitHub</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+          <span aria-hidden="true">◐</span>
+        </button>
+        <form class="nav-search" role="search" data-search-form data-search-open="false">
+          <button class="search-toggle" type="button" data-search-toggle aria-label="Search articles">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="m21 21-4.35-4.35m2.1-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/>
+            </svg>
+          </button>
+          <label class="sr-only" for="site-search">Search articles</label>
+          <input id="site-search" name="q" type="search" placeholder="Search articles" autocomplete="off" data-search-input hidden>
+          <div class="search-results nav-search-results" data-search-results aria-live="polite" hidden></div>
+        </form>
+      </nav>
+    </header>
+
+    <main id="main">
+      {{ content | safe }}
+    </main>
+
+    <footer class="site-footer">
+      <p>{{ site.title }} by {{ site.author }}.</p>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/archive/">Archive</a>
+        <a href="{{ site.github }}">GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>

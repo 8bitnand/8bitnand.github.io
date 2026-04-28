@@ -1,0 +1,39 @@
+---
+pagination:
+  data: collections
+  size: 1
+  alias: tag
+  filter:
+    - all
+    - posts
+    - tagList
+permalink: /tags/{{ tag | slugify }}/
+layout: base.njk
+eleventyComputed:
+  title: "Articles tagged {{ tag }}"
+---
+<section class="content-section">
+  <div class="section-heading">
+    <h1>{{ tag }}</h1>
+    <p>Articles filed under this topic.</p>
+  </div>
+  <div class="card-grid">
+    {% for post in collections[tag] | reverse %}
+      <article class="post-card">
+        {% if post.data.cover and (post.data.cover | assetExists(post.inputPath)) %}
+          <a href="{{ post.url }}" class="card-media">
+            <img src="{{ post.url }}{{ post.data.cover | replace('./', '') }}" alt="{{ post.data.coverAlt or post.data.title }}">
+          </a>
+        {% endif %}
+        <div class="card-body">
+          <div class="card-meta">
+            <time datetime="{{ post.date | isoDate }}">{{ post.date | readableDate }}</time>
+            <span>{{ post.templateContent | readingTime }} min read</span>
+          </div>
+          <h2><a href="{{ post.url }}">{{ post.data.title }}</a></h2>
+          <p>{{ post.data.description }}</p>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
