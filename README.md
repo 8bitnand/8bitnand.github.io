@@ -412,3 +412,15 @@ If LaTeX does not render:
 - Use `$...$` for inline math.
 - Use `$$...$$` for block math.
 - Make sure the equation is not inside a code block.
+
+## Thanks
+
+This blog is built with help from open-source tools and publishing platforms:
+
+- [Eleventy](https://www.11ty.dev/) for static site generation.
+- [GitHub Pages](https://pages.github.com/) and [GitHub Actions](https://github.com/features/actions) for hosting and deployment.
+- [MathJax](https://www.mathjax.org/) for LaTeX and equation rendering.
+- [Prism / Eleventy Syntax Highlight](https://www.11ty.dev/docs/plugins/syntaxhighlight/) for code highlighting.
+- [markdown-it-anchor](https://github.com/valeriangalliat/markdown-it-anchor) for heading links.
+- [GitHub Gist](https://gist.github.com/) for embeddable code snippets.
+- Hashnode and Wix, where earlier versions of several articles were originally published.
