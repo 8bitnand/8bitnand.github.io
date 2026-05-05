@@ -15,6 +15,7 @@ description: "Write and preview blog drafts."
       <button class="button secondary-button" type="button" data-open-preview>Preview Page</button>
       <button class="button primary-button" type="button" data-publish>Publish</button>
     </div>
+    <div class="composer-status composer-status--header" data-composer-status aria-live="polite"></div>
   </header>
 
   <div class="composer-layout">
@@ -75,7 +76,7 @@ description: "Write and preview blog drafts."
             <input type="checkbox" data-field="rememberToken">
             <span>Remember token in this browser</span>
           </label>
-          <p class="composer-help">Publishing writes the article and media directly to <code>main</code> in <code>8bitnand/8bitnand.github.io</code>. The token needs Contents read/write.</p>
+          <p class="composer-help">Publishing writes directly to <code>main</code>, watches GitHub Actions, then shows the article link. The token needs Contents read/write; Actions read helps show deploy status.</p>
           <div class="composer-status" data-composer-status aria-live="polite"></div>
         </div>
       </details>

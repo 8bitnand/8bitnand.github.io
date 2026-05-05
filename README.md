@@ -114,10 +114,11 @@ The token must be a fine-grained GitHub token with access to this repository and
 
 ```text
 Contents: Read and write
+Actions: Read-only
 Metadata: Read-only
 ```
 
-The composer publishes through the GitHub Contents API. It creates or updates `src/blog/<slug>/index.md` on `main`, uploads media into the same folder, and then GitHub Pages deploys from the new `main` commit.
+The composer publishes through the GitHub Contents API. It creates or updates `src/blog/<slug>/index.md` on `main`, uploads media into the same folder, watches the GitHub Actions deployment, and then shows the final article link.
 
 You can still use `Copy Markdown` if you want to publish manually.
 
