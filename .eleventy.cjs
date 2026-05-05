@@ -105,10 +105,6 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addGlobalData("isProduction", isProduction);
 
-  if (isProduction) {
-    eleventyConfig.ignores.add("src/compose/**");
-  }
-
   eleventyConfig.amendLibrary("md", (mdLib) => {
     mdLib.use(markdownItAnchor, {
       permalink: markdownItAnchor.permalink.headerLink(),

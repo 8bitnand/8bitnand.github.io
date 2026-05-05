@@ -59,7 +59,10 @@ You can write articles in two ways:
 
 ## Browser Composer
 
-The composer is **local-only**. It is intentionally excluded from the production GitHub Pages build, so visitors cannot see `/compose/` on the public site.
+The composer is available at `/compose/` on both the local site and the public GitHub Pages site.
+
+- Public site: visitors can write drafts, copy Markdown, and open the preview page. GitHub publishing controls are hidden and disabled.
+- Local dev site: you can also publish by creating a branch and pull request with your own GitHub token.
 
 Run the local dev server:
 
@@ -82,7 +85,7 @@ The composer gives you:
 - Toolbar buttons for headings, code, image, YouTube, Gist, math, quote, and interactive demos.
 - Local media upload for images and videos. Uploaded files are published into the same article folder.
 - Copy Markdown button for manual publishing.
-- Publish PR button that creates a GitHub branch, commits the article, uploads media, and opens a pull request to `main`.
+- Publish PR button in local development only. It creates a GitHub branch, commits the article, uploads media, and opens a pull request to `main`.
 
 Supported slash blocks:
 
@@ -100,7 +103,7 @@ Supported slash blocks:
 /callout
 ```
 
-Publishing from the composer requires a GitHub token in your browser. Use a fine-grained token with access to this repository and these permissions:
+Publishing from the composer is disabled on the public site. Local publishing requires a GitHub token in your browser. Use a fine-grained token with access to this repository and these permissions:
 
 ```text
 Contents: Read and write

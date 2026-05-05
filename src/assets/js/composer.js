@@ -1,6 +1,7 @@
 const draftKey = "8bit-blogs-composer-draft";
 const tokenKey = "8bit-blogs-github-token";
 const composerRoot = document.querySelector("[data-composer-mode]");
+const canPublish = composerRoot?.dataset.canPublish === "true";
 
 const blockTemplates = {
   h2: {
@@ -430,6 +431,8 @@ async function handleAssets(event) {
 }
 
 async function githubRequest(path, options = {}) {
+  if (!canPublish) throw new Error("Publishing is disabled on the public site. Use preview or copy Markdown.");
+
   const draft = readForm();
   const token = getField("token")?.value.trim();
   if (!token) throw new Error("Add a GitHub token before publishing.");
@@ -463,6 +466,8 @@ function setPublishStatus(message, type = "") {
 }
 
 async function publishDraft() {
+  if (!canPublish) throw new Error("Publishing is disabled on the public site. Use preview or copy Markdown.");
+
   const draft = readForm();
   const [owner, repo] = draft.repository.split("/");
 
