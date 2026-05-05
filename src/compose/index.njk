@@ -22,10 +22,13 @@ description: "Write and preview blog drafts."
   <div class="composer-layout">
     <aside class="composer-panel">
       <h2>Article</h2>
-      <label>
-        <span>Slug</span>
-        <input type="text" data-field="slug" placeholder="my-article-title">
-      </label>
+      <details class="composer-disclosure">
+        <summary>URL slug</summary>
+        <label>
+          <span>Slug</span>
+          <input type="text" data-field="slug" placeholder="my-article-title">
+        </label>
+      </details>
       <label>
         <span>Date</span>
         <input type="date" data-field="date">
