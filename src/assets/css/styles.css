@@ -888,12 +888,31 @@ video {
   text-transform: uppercase;
 }
 
-.composer-disclosure label {
+.composer-settings-disclosure {
+  margin-bottom: 0;
+}
+
+.composer-settings-disclosure > summary {
+  color: var(--text);
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.composer-settings-body {
+  padding: 10px 10px 4px;
+}
+
+.composer-settings-body > .composer-divider {
+  margin: 16px -10px;
+}
+
+.composer-section-disclosure > label {
   margin: 0;
   padding: 0 10px 10px;
 }
 
-.composer-disclosure label:first-of-type {
+.composer-section-disclosure > label:first-of-type {
   padding-top: 4px;
 }
 
