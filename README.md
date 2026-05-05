@@ -100,6 +100,8 @@ Pull requests: Read and write
 Metadata: Read-only
 ```
 
+Create the token from the same GitHub account that owns or can write to `8bitnand/8bitnand.github.io`. If GitHub says `must be a collaborator`, the token is usually from the wrong account or does not have write access to the repository.
+
 The token is only used in your browser. If you select "Remember token", it is stored in browser localStorage.
 
 The composer does not push directly to `main`. It creates a branch like:

@@ -445,7 +445,10 @@ async function githubRequest(path, options = {}) {
 
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(body.message || `GitHub request failed: ${response.status}`);
+    const details = Array.isArray(body.errors)
+      ? body.errors.map((error) => error.message || error.code).filter(Boolean).join("; ")
+      : "";
+    throw new Error([body.message, details].filter(Boolean).join(": ") || `GitHub request failed: ${response.status}`);
   }
   return body;
 }
@@ -503,7 +506,7 @@ async function publishDraft() {
     method: "POST",
     body: JSON.stringify({
       title: `Add ${draft.title}`,
-      head: branch,
+      head: `${owner}:${branch}`,
       base: draft.baseBranch,
       body: [
         "Adds a new article from the 8bit blogs composer.",
