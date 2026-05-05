@@ -889,8 +889,12 @@ video {
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 800;
-  list-style-position: inside;
+  list-style: none;
   padding: 9px 10px;
+}
+
+.composer-disclosure summary::-webkit-details-marker {
+  display: none;
 }
 
 .composer-settings-disclosure {
@@ -898,10 +902,24 @@ video {
 }
 
 .composer-settings-disclosure > summary {
+  align-items: center;
   color: var(--text);
+  display: flex;
   font-size: 0.92rem;
   letter-spacing: 0.04em;
+  gap: 8px;
   text-transform: uppercase;
+}
+
+.settings-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .composer[data-settings-open="false"] .composer-settings-disclosure {
@@ -911,14 +929,21 @@ video {
 }
 
 .composer[data-settings-open="false"] .composer-settings-disclosure > summary {
-  align-items: center;
   display: flex;
-  height: 100%;
+  width: 42px;
+  height: 42px;
   justify-content: center;
-  list-style-position: outside;
-  padding: 14px 8px;
-  text-align: center;
-  writing-mode: vertical-rl;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.composer[data-settings-open="false"] .settings-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .composer-settings-body {
@@ -1335,11 +1360,20 @@ video {
   }
 
   .composer[data-settings-open="false"] .composer-settings-disclosure > summary {
-    display: block;
+    display: flex;
+    width: auto;
     height: auto;
     padding: 9px 10px;
     text-align: left;
-    writing-mode: horizontal-tb;
+  }
+
+  .composer[data-settings-open="false"] .settings-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
   }
 
   .editor-pane {
