@@ -118,6 +118,8 @@ Actions: Read-only
 Metadata: Read-only
 ```
 
+If publishing says `Resource not accessible by personal access token`, the token can log in but cannot write to this repository. Regenerate it with access to `8bitnand/8bitnand.github.io` and `Contents: Read and write`. `Actions: Read-only` is only needed for showing the build/deploy progress after the article has been committed.
+
 The composer publishes through the GitHub Contents API. It creates or updates `src/blog/<slug>/index.md` on `main`, uploads media into the same folder, watches the GitHub Actions deployment, and then shows the final article link.
 
 You can still use `Copy Markdown` if you want to publish manually.
