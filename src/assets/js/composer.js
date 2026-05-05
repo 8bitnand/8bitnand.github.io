@@ -422,6 +422,23 @@ function continueAfterBlock(block) {
   focusBlock(paragraph);
 }
 
+function focusTrailingParagraph() {
+  const editor = blockEditor();
+  if (!editor) return;
+
+  const lastBlock = editor.lastElementChild;
+  if (lastBlock?.dataset.blockType === "paragraph" && !textFromEditable(lastBlock.querySelector("[data-block-text]"))) {
+    focusBlock(lastBlock);
+    return;
+  }
+
+  const paragraph = createBlock("paragraph");
+  editor.append(paragraph);
+  syncHiddenMarkdown();
+  scheduleSave();
+  focusBlock(paragraph);
+}
+
 function deleteBlock(block) {
   const editor = blockEditor();
   if (!editor || !block) return;
@@ -1069,7 +1086,10 @@ function bindEditor() {
     const deleteButton = event.target.closest("[data-block-delete]");
     const continueButton = event.target.closest("[data-block-continue]");
     const block = event.target.closest(".composer-block");
-    if (!block) return;
+    if (!block) {
+      if (event.target === editor) focusTrailingParagraph();
+      return;
+    }
 
     if (deleteButton) {
       deleteBlock(block);
