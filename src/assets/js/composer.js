@@ -342,7 +342,13 @@ function renderBlocks(blocks = []) {
   const editor = blockEditor();
   if (!editor) return;
   editor.innerHTML = "";
-  const safeBlocks = Array.isArray(blocks) && blocks.length ? blocks : [{ type: "paragraph", text: "" }];
+  const sourceBlocks = Array.isArray(blocks) && blocks.length ? blocks : [{ type: "paragraph", text: "" }];
+  const safeBlocks = sourceBlocks.filter((block, index, list) => {
+    const isEmptyParagraph = block.type === "paragraph" && !String(block.text || "").trim();
+    const previous = list[index - 1];
+    const previousIsEmptyParagraph = previous?.type === "paragraph" && !String(previous.text || "").trim();
+    return !(isEmptyParagraph && previousIsEmptyParagraph);
+  });
   safeBlocks.forEach((block) => editor.append(createBlock(block.type, block)));
   ensureEditorHasBlock();
   syncHiddenMarkdown();
@@ -580,6 +586,7 @@ function buildFrontMatter(draft = readForm()) {
 
 function renderSlashMenu(filter = "") {
   const menu = $("[data-slash-menu]");
+  const editor = blockEditor();
   if (!menu) return;
 
   const query = filter.replace(/^\//, "").toLowerCase();
@@ -591,6 +598,10 @@ function renderSlashMenu(filter = "") {
   }
 
   menu.hidden = false;
+  if (activeBlock && editor) {
+    const top = editor.offsetTop + activeBlock.offsetTop + activeBlock.offsetHeight + 8;
+    menu.style.top = `${top}px`;
+  }
   menu.innerHTML = matches
     .map((block) => `
       <button type="button" data-slash-block="${block.id}">
@@ -604,6 +615,14 @@ function renderSlashMenu(filter = "") {
 function hideSlashMenu() {
   const menu = $("[data-slash-menu]");
   if (menu) menu.hidden = true;
+}
+
+function slashCommandFromText(value = "") {
+  const match = String(value).trim().match(/^\/([a-z-]*)$/i);
+  if (!match) return null;
+  const query = match[1].toLowerCase();
+  if (!query) return null;
+  return slashBlocks.find((block) => block.id === query)?.id || slashBlocks.find((block) => block.id.startsWith(query))?.id || null;
 }
 
 function updateCodePreview(block) {
@@ -859,8 +878,17 @@ function handleBlockKeydown(event) {
     return;
   }
 
-  if (event.key === "Enter" && !event.shiftKey && event.target.matches("[contenteditable='true']")) {
+  if (event.key === "Enter" && !event.shiftKey && event.target.matches("[data-block-text]")) {
     event.preventDefault();
+    const text = textFromEditable(event.target);
+    const command = slashCommandFromText(text);
+
+    if (command) {
+      insertBlock(command, {}, block);
+      return;
+    }
+
+    if (!text) return;
     insertBlock("paragraph");
   }
 
