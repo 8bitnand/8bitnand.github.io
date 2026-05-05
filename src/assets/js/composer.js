@@ -942,19 +942,28 @@ async function githubRequest(path, options = {}) {
 }
 
 async function publishFile(owner, repo, path, content, message) {
-  const existing = await githubRequest(`/repos/${owner}/${repo}/contents/${encodeURIComponent(path).replace(/%2F/g, "/")}?ref=${encodeURIComponent(publishBaseBranch)}`, {
-    allowNotFound: true
-  });
+  const encodedPath = encodeURIComponent(path).replace(/%2F/g, "/");
 
-  return githubRequest(`/repos/${owner}/${repo}/contents/${encodeURIComponent(path).replace(/%2F/g, "/")}`, {
-    method: "PUT",
-    body: JSON.stringify({
-      message,
-      content,
-      branch: publishBaseBranch,
-      ...(existing?.sha ? { sha: existing.sha } : {})
-    })
-  });
+  try {
+    const existing = await githubRequest(`/repos/${owner}/${repo}/contents/${encodedPath}?ref=${encodeURIComponent(publishBaseBranch)}`, {
+      allowNotFound: true
+    });
+
+    return await githubRequest(`/repos/${owner}/${repo}/contents/${encodedPath}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        message,
+        content,
+        branch: publishBaseBranch,
+        ...(existing?.sha ? { sha: existing.sha } : {})
+      })
+    });
+  } catch (error) {
+    if (String(error.message || "").includes("Resource not accessible by personal access token")) {
+      throw new Error(`Token cannot write to ${owner}/${repo}. Create a fine-grained token for this repository with Contents: Read and write. If main is protected, allow this account to push or use a pull request flow.`);
+    }
+    throw error;
+  }
 }
 
 async function waitForDeployment(owner, repo, commitSha, slug) {
