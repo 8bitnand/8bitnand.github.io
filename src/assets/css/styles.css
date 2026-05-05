@@ -1124,6 +1124,8 @@ video {
 }
 
 .block-editor {
+  align-content: start;
+  align-items: start;
   display: grid;
   gap: 18px;
   min-height: calc(100vh - 390px);
