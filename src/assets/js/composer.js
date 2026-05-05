@@ -1113,7 +1113,16 @@ function bindComposer() {
 
   $("[data-open-preview]")?.addEventListener("click", () => {
     saveDraft();
-    window.open("/compose/preview/", "_blank", "noopener");
+    const previewWindow = window.open("/compose/preview/", "composerPreview");
+    previewWindow?.focus();
+  });
+
+  $("[data-back-to-composer]")?.addEventListener("click", (event) => {
+    if (window.opener && !window.opener.closed) {
+      event.preventDefault();
+      window.opener.focus();
+      window.close();
+    }
   });
 
   $("[data-publish]")?.addEventListener("click", async () => {
