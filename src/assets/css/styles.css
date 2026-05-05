@@ -981,8 +981,7 @@ video {
 .story-description-input:focus,
 .editor-wrap textarea:focus,
 .block-shell input:focus,
-.block-shell textarea:focus,
-.composer-block [contenteditable="true"]:focus {
+.block-shell textarea:focus {
   border-color: var(--accent);
   outline: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
   outline-offset: 1px;
@@ -1137,8 +1136,12 @@ video {
 }
 
 .composer-block [contenteditable="true"] {
+  caret-color: var(--text);
   min-height: 1.7em;
-  border-radius: 8px;
+  outline: 0;
+}
+
+.composer-block [contenteditable="true"]:focus {
   outline: 0;
 }
 
