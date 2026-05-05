@@ -1,0 +1,32 @@
+---
+layout: base.njk
+title: Composer Preview
+description: "Preview the current blog draft."
+---
+
+<section class="composer composer-preview-page" data-composer-mode="preview">
+  <header class="composer-header">
+    <div>
+      <p class="composer-kicker">Preview</p>
+      <h1 data-preview-page-title>Draft preview</h1>
+    </div>
+    <div class="composer-actions">
+      <a class="button secondary-button" href="/compose/">Back to Composer</a>
+    </div>
+  </header>
+
+  <article class="article preview-route-article">
+    <header class="article-hero article-hero--no-cover">
+      <div class="eyebrow" data-preview-meta></div>
+      <h1 data-preview-title>Untitled article</h1>
+    </header>
+    <div class="article-shell">
+      <p class="lede" data-preview-description></p>
+      <div class="article-content" data-preview-content></div>
+    </div>
+  </article>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js" defer></script>
+<script src="/assets/js/composer.js" defer></script>

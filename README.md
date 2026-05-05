@@ -52,6 +52,66 @@ src/
 
 ## Creating a New Article
 
+You can write articles in two ways:
+
+- Use the browser composer at `/compose/`.
+- Create the article folder and Markdown file manually.
+
+## Browser Composer
+
+Open:
+
+```text
+/compose/
+```
+
+The composer gives you:
+
+- Metadata controls for title, slug, description, date, tags, cover, and cover alt text.
+- A Markdown editor with a live preview.
+- A separate preview page at `/compose/preview/`.
+- Slash commands. Type `/` on a new line to insert supported blocks.
+- Toolbar buttons for headings, code, image, YouTube, Gist, math, quote, and interactive demos.
+- Local media upload for images and videos. Uploaded files are published into the same article folder.
+- Copy Markdown button for manual publishing.
+- Publish PR button that creates a GitHub branch, commits the article, uploads media, and opens a pull request to `main`.
+
+Supported slash blocks:
+
+```text
+/h2
+/code
+/image
+/video
+/youtube
+/gist
+/math
+/quote
+/demo
+/table
+/callout
+```
+
+Publishing from the composer requires a GitHub token in your browser. Use a fine-grained token with access to this repository and these permissions:
+
+```text
+Contents: Read and write
+Pull requests: Read and write
+Metadata: Read-only
+```
+
+The token is only used in your browser. If you select "Remember token", it is stored in browser localStorage.
+
+The composer does not push directly to `main`. It creates a branch like:
+
+```text
+post/my-article-title-1770000000000
+```
+
+Then it opens a pull request into `main`.
+
+## Manual Article Creation
+
 Create a new folder under `src/blog/`:
 
 ```text
