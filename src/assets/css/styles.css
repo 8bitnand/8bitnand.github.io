@@ -918,7 +918,10 @@ video {
 .composer-panel textarea:focus,
 .story-title-input:focus,
 .story-description-input:focus,
-.editor-wrap textarea:focus {
+.editor-wrap textarea:focus,
+.block-shell input:focus,
+.block-shell textarea:focus,
+.composer-block [contenteditable="true"]:focus {
   border-color: var(--accent);
   outline: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
   outline-offset: 1px;
@@ -1034,8 +1037,7 @@ video {
 }
 
 .story-title-input::placeholder,
-.story-description-input::placeholder,
-.editor-wrap textarea::placeholder {
+.story-description-input::placeholder {
   color: color-mix(in srgb, var(--muted) 70%, transparent);
 }
 
@@ -1060,16 +1062,138 @@ video {
   position: relative;
 }
 
-.editor-wrap textarea {
-  display: block;
-  width: 100%;
+.block-editor {
+  display: grid;
+  gap: 18px;
   min-height: calc(100vh - 390px);
-  border: 0;
   background: var(--surface);
   color: var(--text);
-  font: 1.08rem/1.8 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   padding: 30px clamp(24px, 7vw, 86px) 56px;
+}
+
+.composer-block {
+  position: relative;
+}
+
+.composer-block [contenteditable="true"] {
+  min-height: 1.7em;
+  border-radius: 8px;
+  outline: 0;
+}
+
+.composer-block [contenteditable="true"]:empty::before {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.composer-paragraph-block p,
+.composer-quote-block blockquote,
+.composer-h2-block h2 {
+  margin: 0;
+}
+
+.composer-h2-block h2 {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.composer-quote-block blockquote {
+  border-left: 4px solid var(--accent);
+  color: var(--muted);
+  font-size: 1.25rem;
+  font-style: italic;
+  padding-left: 18px;
+}
+
+.block-shell {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 12px;
+}
+
+.block-shell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.block-shell input,
+.block-shell textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  padding: 10px 11px;
+}
+
+.block-shell textarea {
+  min-height: 160px;
   resize: vertical;
+}
+
+.composer-code-block textarea,
+.composer-math-block textarea {
+  font: 0.95rem/1.65 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.composer-code-block .gist-code {
+  margin: 0;
+}
+
+.composer-media-block figure,
+.composer-embed-block figure {
+  margin: 0;
+}
+
+.composer-media-block img,
+.composer-media-block video {
+  display: block;
+  width: 100%;
+  max-height: 520px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.block-empty-preview {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  padding: 18px;
+}
+
+.composer-table-block table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.composer-table-block td {
+  border: 1px solid var(--line);
+  min-width: 120px;
+  padding: 10px;
+}
+
+.composer-callout-block {
+  margin: 0;
+}
+
+.math-preview {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 14px;
 }
 
 .slash-menu {

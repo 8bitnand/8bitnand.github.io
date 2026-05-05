@@ -79,10 +79,11 @@ http://localhost:8080/compose/
 The composer gives you:
 
 - Metadata controls for title, slug, description, date, tags, cover, and cover alt text.
-- A focused Markdown editor with title and subtitle fields in the writing surface.
+- A block-style article editor with title and subtitle fields in the writing surface.
 - A separate preview page at `/compose/preview/` when you want to inspect the rendered article.
-- Slash commands. Type `/` on a new line to insert supported blocks.
-- Toolbar buttons for headings, code, image, YouTube, Gist, math, quote, and interactive demos.
+- Slash commands. Type `/` in a blank paragraph to insert supported blocks.
+- Toolbar buttons for headings, code, image, video, YouTube, Gist, math, quote, interactive demos, tables, and callouts.
+- Rendered editing blocks for the main article features. Markdown is generated in the background for copy and publish.
 - Local media upload for images and videos. Uploaded files are published into the same article folder.
 - Copy Markdown button for manual publishing.
 - Publish PR button in local development only. It creates a GitHub branch, commits the article, uploads media, and opens a pull request to `main`.

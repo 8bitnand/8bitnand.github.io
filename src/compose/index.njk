@@ -106,7 +106,8 @@ description: "Write and preview blog drafts."
         <button type="button" data-insert="callout">Callout</button>
       </div>
       <div class="editor-wrap">
-        <textarea data-editor spellcheck="true" placeholder="Start writing...&#10;&#10;Type / on a new line for code, images, video, YouTube, Gist, math, tables, callouts, and demos."></textarea>
+        <textarea data-editor hidden aria-hidden="true"></textarea>
+        <div class="block-editor article-content" data-block-editor aria-label="Article body"></div>
         <div class="slash-menu" data-slash-menu hidden></div>
       </div>
     </section>
