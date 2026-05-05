@@ -86,7 +86,7 @@ The composer gives you:
 - Rendered editing blocks for the main article features. Markdown is generated in the background for copy and publish.
 - Local media upload for images and videos. Uploaded files are kept in the browser for draft previews and uploaded with the article when publishing.
 - Copy Markdown button for moving the draft into an article folder manually.
-- Publish button that creates a branch and pull request for `8bitnand/8bitnand.github.io`.
+- Publish button that writes the article and uploaded media directly to `main` in `8bitnand/8bitnand.github.io`.
 
 Supported slash blocks:
 
@@ -108,23 +108,16 @@ To publish from the composer:
 
 1. Add a GitHub token in Settings.
 2. Click `Publish`.
-3. Review and merge the pull request it creates.
+3. Wait for GitHub Pages CI to deploy the new `main` commit.
 
 The token must be a fine-grained GitHub token with access to this repository and these permissions:
 
 ```text
 Contents: Read and write
-Pull requests: Read and write
 Metadata: Read-only
 ```
 
-The composer does not push directly to `main`. It creates a branch like:
-
-```text
-post/my-article-title-1770000000000
-```
-
-Then it opens a pull request into `main`. GitHub Pages deploys after that pull request is merged.
+The composer publishes through the GitHub Contents API. It creates or updates `src/blog/<slug>/index.md` on `main`, uploads media into the same folder, and then GitHub Pages deploys from the new `main` commit.
 
 You can still use `Copy Markdown` if you want to publish manually.
 
@@ -443,7 +436,7 @@ The public URL is:
 https://8bitnand.github.io/
 ```
 
-Do not push directly to `main` or `stge`. Create a branch, push it, and open a pull request.
+For local git changes, do not push directly to `main` or `stge`. Create a branch, push it, and open a pull request.
 
 Typical flow:
 

@@ -906,21 +906,23 @@ function base64Encode(value = "") {
 }
 
 async function githubRequest(path, options = {}) {
+  const { allowNotFound = false, ...requestOptions } = options;
   const token = getField("token")?.value.trim();
   if (!token) throw new Error("Add a GitHub token in Settings before publishing.");
 
   const response = await fetch(`https://api.github.com${path}`, {
-    ...options,
+    ...requestOptions,
     headers: {
       accept: "application/vnd.github+json",
       authorization: `Bearer ${token}`,
       "content-type": "application/json",
       "x-github-api-version": "2022-11-28",
-      ...(options.headers || {})
+      ...(requestOptions.headers || {})
     }
   });
 
   const body = await response.json().catch(() => ({}));
+  if (allowNotFound && response.status === 404) return null;
   if (!response.ok) {
     const details = Array.isArray(body.errors)
       ? body.errors.map((error) => error.message || error.code).filter(Boolean).join("; ")
@@ -930,6 +932,22 @@ async function githubRequest(path, options = {}) {
   return body;
 }
 
+async function publishFile(owner, repo, path, content, message) {
+  const existing = await githubRequest(`/repos/${owner}/${repo}/contents/${encodeURIComponent(path).replace(/%2F/g, "/")}?ref=${encodeURIComponent(publishBaseBranch)}`, {
+    allowNotFound: true
+  });
+
+  return githubRequest(`/repos/${owner}/${repo}/contents/${encodeURIComponent(path).replace(/%2F/g, "/")}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      message,
+      content,
+      branch: publishBaseBranch,
+      ...(existing?.sha ? { sha: existing.sha } : {})
+    })
+  });
+}
+
 async function publishDraft() {
   const draft = readForm();
   const [owner, repo] = publishRepository.split("/");
@@ -937,55 +955,17 @@ async function publishDraft() {
   if (!draft.title.trim()) throw new Error("Add a title before publishing.");
   if (!draft.description.trim()) throw new Error("Add a description before publishing.");
 
-  setComposerStatus("Creating publish branch...", "pending");
-
-  const branch = `post/${draft.slug}-${Date.now()}`;
-  const baseRef = await githubRequest(`/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(publishBaseBranch)}`);
-
-  await githubRequest(`/repos/${owner}/${repo}/git/refs`, {
-    method: "POST",
-    body: JSON.stringify({
-      ref: `refs/heads/${branch}`,
-      sha: baseRef.object.sha
-    })
-  });
+  setComposerStatus("Publishing to main...", "pending");
 
   const articlePath = `src/blog/${draft.slug}/index.md`;
-  await githubRequest(`/repos/${owner}/${repo}/contents/${articlePath}`, {
-    method: "PUT",
-    body: JSON.stringify({
-      message: `Add ${draft.title}`,
-      content: base64Encode(buildFrontMatter(draft)),
-      branch
-    })
-  });
+  const articleResult = await publishFile(owner, repo, articlePath, base64Encode(buildFrontMatter(draft)), `Publish ${draft.title}`);
 
   for (const asset of mediaAssets) {
-    await githubRequest(`/repos/${owner}/${repo}/contents/src/blog/${draft.slug}/${asset.name}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        message: `Add media for ${draft.title}`,
-        content: asset.base64,
-        branch
-      })
-    });
+    await publishFile(owner, repo, `src/blog/${draft.slug}/${asset.name}`, asset.base64, `Publish media for ${draft.title}`);
   }
 
-  const pr = await githubRequest(`/repos/${owner}/${repo}/pulls`, {
-    method: "POST",
-    body: JSON.stringify({
-      title: `Add ${draft.title}`,
-      head: `${owner}:${branch}`,
-      base: publishBaseBranch,
-      body: [
-        "Adds a new article from the 8bit blogs composer.",
-        "",
-        `Article path: \`${articlePath}\``
-      ].join("\n")
-    })
-  });
-
-  setComposerStatus(`<a href="${escapeHtml(pr.html_url)}" target="_blank" rel="noopener noreferrer">Pull request created</a>. Merge it to publish on GitHub Pages.`, "success");
+  const commitUrl = articleResult?.commit?.html_url;
+  setComposerStatus(`${commitUrl ? `<a href="${escapeHtml(commitUrl)}" target="_blank" rel="noopener noreferrer">Published to main</a>` : "Published to main"}. GitHub Pages will deploy after CI finishes.`, "success");
 }
 
 function handleBlockInput(event) {
