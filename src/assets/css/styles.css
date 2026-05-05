@@ -1042,26 +1042,26 @@ video {
   font-size: 0.78rem;
 }
 
-.publish-status {
+.composer-status {
   overflow-wrap: anywhere;
   border-radius: 8px;
   color: var(--muted);
   font-size: 0.88rem;
 }
 
-.publish-status[data-status="pending"],
-.publish-status[data-status="success"],
-.publish-status[data-status="error"] {
+.composer-status[data-status="pending"],
+.composer-status[data-status="success"],
+.composer-status[data-status="error"] {
   border: 1px solid var(--line);
   padding: 10px;
 }
 
-.publish-status[data-status="success"] {
+.composer-status[data-status="success"] {
   border-color: color-mix(in srgb, #2c9f6f 50%, var(--line));
   color: #207a52;
 }
 
-.publish-status[data-status="error"] {
+.composer-status[data-status="error"] {
   border-color: color-mix(in srgb, #c33f38 55%, var(--line));
   color: #a2332d;
 }

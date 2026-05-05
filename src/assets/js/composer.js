@@ -1,7 +1,5 @@
 const draftKey = "8bit-blogs-composer-draft";
-const tokenKey = "8bit-blogs-github-token";
 const composerRoot = document.querySelector("[data-composer-mode]");
-const canPublish = composerRoot?.dataset.canPublish === "true";
 
 const blockTemplates = {
   h2: { label: "Heading", hint: "Add a section heading" },
@@ -611,9 +609,6 @@ function readForm() {
     cover: String(value("cover")).trim(),
     coverAlt: String(value("coverAlt")).trim(),
     hideCover: checked("hideCover"),
-    repository: String(value("repository", "8bitnand/8bitnand.github.io")).trim(),
-    baseBranch: String(value("baseBranch", "main")).trim(),
-    rememberToken: checked("rememberToken"),
     blocks: serializeBlocks(),
     content: hiddenEditor()?.value || fallback.content || ""
   };
@@ -629,9 +624,6 @@ function writeForm(draft = {}) {
     cover: "",
     coverAlt: "",
     hideCover: false,
-    repository: "8bitnand/8bitnand.github.io",
-    baseBranch: "main",
-    rememberToken: false,
     content: "",
     blocks: []
   };
@@ -650,23 +642,12 @@ function writeForm(draft = {}) {
   }
 
   renderBlocks(Array.isArray(value.blocks) && value.blocks.length ? value.blocks : markdownToBlocks(value.content));
-
-  const token = localStorage.getItem(tokenKey);
-  if (token && getField("token")) {
-    getField("token").value = token;
-    getField("rememberToken").checked = true;
-  }
 }
 
 function saveDraft() {
   if (!composerRoot) return;
   const draft = { ...readForm(), assets: mediaAssets };
   localStorage.setItem(draftKey, JSON.stringify(draft));
-  if (draft.rememberToken && getField("token")?.value) {
-    localStorage.setItem(tokenKey, getField("token").value);
-  } else if (!draft.rememberToken) {
-    localStorage.removeItem(tokenKey);
-  }
 
   const saveState = $("[data-save-state]");
   if (saveState) saveState.textContent = `Saved ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
@@ -892,100 +873,11 @@ async function handleBlockAsset(event) {
   saveDraft();
 }
 
-async function githubRequest(path, options = {}) {
-  if (!canPublish) throw new Error("Publishing is disabled on the public site. Use preview or copy Markdown.");
-
-  const draft = readForm();
-  const token = getField("token")?.value.trim();
-  if (!token) throw new Error("Add a GitHub token before publishing.");
-
-  const response = await fetch(`https://api.github.com${path}`, {
-    ...options,
-    headers: {
-      accept: "application/vnd.github+json",
-      authorization: `Bearer ${token}`,
-      "content-type": "application/json",
-      "x-github-api-version": "2022-11-28",
-      ...(options.headers || {})
-    }
-  });
-
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const details = Array.isArray(body.errors)
-      ? body.errors.map((error) => error.message || error.code).filter(Boolean).join("; ")
-      : "";
-    throw new Error([body.message, details].filter(Boolean).join(": ") || `GitHub request failed: ${response.status}`);
-  }
-  return body;
-}
-
-function setPublishStatus(message, type = "") {
-  const status = $("[data-publish-status]");
+function setComposerStatus(message, type = "") {
+  const status = $("[data-composer-status]");
   if (!status) return;
   status.dataset.status = type;
   status.innerHTML = message;
-}
-
-async function publishDraft() {
-  if (!canPublish) throw new Error("Publishing is disabled on the public site. Use preview or copy Markdown.");
-
-  const draft = readForm();
-  const [owner, repo] = draft.repository.split("/");
-
-  if (!owner || !repo) throw new Error("Repository must look like owner/repo.");
-  if (!draft.title.trim()) throw new Error("Add a title before publishing.");
-  if (!draft.description.trim()) throw new Error("Add a description before publishing.");
-
-  setPublishStatus("Creating publish branch...", "pending");
-
-  const branch = `post/${draft.slug}-${Date.now()}`;
-  const baseRef = await githubRequest(`/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(draft.baseBranch)}`);
-
-  await githubRequest(`/repos/${owner}/${repo}/git/refs`, {
-    method: "POST",
-    body: JSON.stringify({
-      ref: `refs/heads/${branch}`,
-      sha: baseRef.object.sha
-    })
-  });
-
-  const articlePath = `src/blog/${draft.slug}/index.md`;
-  await githubRequest(`/repos/${owner}/${repo}/contents/${articlePath}`, {
-    method: "PUT",
-    body: JSON.stringify({
-      message: `Add ${draft.title}`,
-      content: btoa(unescape(encodeURIComponent(buildFrontMatter(draft)))),
-      branch
-    })
-  });
-
-  for (const asset of mediaAssets) {
-    await githubRequest(`/repos/${owner}/${repo}/contents/src/blog/${draft.slug}/${asset.name}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        message: `Add media for ${draft.title}`,
-        content: asset.base64,
-        branch
-      })
-    });
-  }
-
-  const pr = await githubRequest(`/repos/${owner}/${repo}/pulls`, {
-    method: "POST",
-    body: JSON.stringify({
-      title: `Add ${draft.title}`,
-      head: `${owner}:${branch}`,
-      base: draft.baseBranch,
-      body: [
-        "Adds a new article from the 8bit blogs composer.",
-        "",
-        `Article path: \`${articlePath}\``
-      ].join("\n")
-    })
-  });
-
-  setPublishStatus(`<a href="${escapeHtml(pr.html_url)}" target="_blank" rel="noopener noreferrer">Pull request created</a>`, "success");
 }
 
 function handleBlockInput(event) {
@@ -1161,7 +1053,7 @@ function bindComposer() {
 
   $("[data-copy-markdown]")?.addEventListener("click", async () => {
     await navigator.clipboard.writeText(buildFrontMatter());
-    setPublishStatus("Markdown copied.", "success");
+    setComposerStatus("Markdown copied.", "success");
   });
 
   $("[data-open-preview]")?.addEventListener("click", () => {
@@ -1175,15 +1067,6 @@ function bindComposer() {
       event.preventDefault();
       window.opener.focus();
       window.close();
-    }
-  });
-
-  $("[data-publish]")?.addEventListener("click", async () => {
-    try {
-      saveDraft();
-      await publishDraft();
-    } catch (error) {
-      setPublishStatus(escapeHtml(error.message), "error");
     }
   });
 }

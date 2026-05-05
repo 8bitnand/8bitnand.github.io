@@ -4,7 +4,7 @@ title: Composer
 description: "Write and preview blog drafts."
 ---
 
-<section class="composer" data-composer-mode="editor" data-can-publish="{% if isProduction %}false{% else %}true{% endif %}">
+<section class="composer" data-composer-mode="editor">
   <header class="composer-header">
     <div>
       <p class="composer-kicker">Draft</p>
@@ -13,9 +13,6 @@ description: "Write and preview blog drafts."
     <div class="composer-actions">
       <button class="button secondary-button" type="button" data-copy-markdown>Copy Markdown</button>
       <button class="button secondary-button" type="button" data-open-preview>Preview Page</button>
-      {% if not isProduction %}
-        <button class="button primary-button" type="button" data-publish>Publish PR</button>
-      {% endif %}
     </div>
   </header>
 
@@ -63,35 +60,14 @@ description: "Write and preview blog drafts."
             <span>Upload images or videos</span>
             <input type="file" data-asset-input multiple accept="image/*,video/mp4,video/webm">
           </label>
-          <p class="composer-help">Uploaded files are kept in memory until publishing. They are saved next to the article.</p>
+          <p class="composer-help">Uploaded files are kept in this browser for draft previews. Copied Markdown references them by filename.</p>
           <div class="asset-list" data-asset-list></div>
 
           <div class="composer-divider"></div>
 
-          {% if not isProduction %}
-            <h2>GitHub publish</h2>
-            <label>
-              <span>Repository</span>
-              <input type="text" data-field="repository" value="8bitnand/8bitnand.github.io">
-            </label>
-            <label>
-              <span>Base branch</span>
-              <input type="text" data-field="baseBranch" value="main">
-            </label>
-            <label>
-              <span>GitHub token</span>
-              <input type="password" data-field="token" placeholder="Fine-grained token">
-            </label>
-            <label class="check-row">
-              <input type="checkbox" data-field="rememberToken">
-              <span>Remember token in this browser</span>
-            </label>
-            <p class="composer-help">Token needs Contents read/write and Pull requests read/write. Publishing creates a branch and PR, not a direct main push.</p>
-          {% else %}
-            <h2>Preview only</h2>
-            <p class="composer-help">Public visitors can draft, copy Markdown, and open the preview page. GitHub publishing is disabled on the public site.</p>
-          {% endif %}
-          <div class="publish-status" data-publish-status aria-live="polite"></div>
+          <h2>Publishing</h2>
+          <p class="composer-help">Use Copy Markdown, create a folder under <code>src/blog/</code>, save it as <code>index.md</code>, add media files beside it, then open a pull request to main.</p>
+          <div class="composer-status" data-composer-status aria-live="polite"></div>
         </div>
       </details>
     </aside>

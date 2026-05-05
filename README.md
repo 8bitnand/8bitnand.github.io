@@ -61,8 +61,8 @@ You can write articles in two ways:
 
 The composer is available at `/compose/` on both the local site and the public GitHub Pages site.
 
-- Public site: visitors can write drafts, copy Markdown, and open the preview page. GitHub publishing controls are hidden and disabled.
-- Local dev site: you can also publish by creating a branch and pull request with your own GitHub token.
+- Public site: visitors can write drafts, copy Markdown, and open the preview page.
+- Local dev site: same composer, with local rebuilds while you work.
 
 Run the local dev server:
 
@@ -83,10 +83,9 @@ The composer gives you:
 - A separate preview page at `/compose/preview/` when you want to inspect the rendered article.
 - Slash commands. Type `/` in a blank paragraph to insert supported blocks.
 - Toolbar buttons for headings, code, image, video, YouTube, Gist, math, quote, interactive demos, tables, and callouts.
-- Rendered editing blocks for the main article features. Markdown is generated in the background for copy and publish.
-- Local media upload for images and videos. Uploaded files are published into the same article folder.
-- Copy Markdown button for manual publishing.
-- Publish PR button in local development only. It creates a GitHub branch, commits the article, uploads media, and opens a pull request to `main`.
+- Rendered editing blocks for the main article features. Markdown is generated in the background for copy.
+- Local media upload for images and videos. Uploaded files are kept in the browser for draft previews; copied Markdown references them by filename.
+- Copy Markdown button for moving the draft into an article folder manually.
 
 Supported slash blocks:
 
@@ -104,25 +103,14 @@ Supported slash blocks:
 /callout
 ```
 
-Publishing from the composer is disabled on the public site. Local publishing requires a GitHub token in your browser. Use a fine-grained token with access to this repository and these permissions:
+To publish a composer draft:
 
-```text
-Contents: Read and write
-Pull requests: Read and write
-Metadata: Read-only
-```
-
-Create the token from the same GitHub account that owns or can write to `8bitnand/8bitnand.github.io`. If GitHub says `must be a collaborator`, the token is usually from the wrong account or does not have write access to the repository.
-
-The token is only used in your browser. If you select "Remember token", it is stored in browser localStorage.
-
-The composer does not push directly to `main`. It creates a branch like:
-
-```text
-post/my-article-title-1770000000000
-```
-
-Then it opens a pull request into `main`.
+1. Click `Copy Markdown`.
+2. Create a folder like `src/blog/my-new-article/`.
+3. Paste the copied Markdown into `src/blog/my-new-article/index.md`.
+4. Put images and videos referenced by the draft in that same folder.
+5. Build locally with `npm run build`.
+6. Commit on a branch and open a pull request to `main`.
 
 ## Manual Article Creation
 
