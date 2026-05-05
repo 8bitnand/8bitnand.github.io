@@ -110,7 +110,8 @@ document.addEventListener("keydown", (event) => {
   }
 
   if (event.key !== "/" || !searchInput) return;
-  if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+  if (document.querySelector("[data-composer-mode]")) return;
+  if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) return;
   event.preventDefault();
   openSearch();
 });
