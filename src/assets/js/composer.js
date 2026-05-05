@@ -220,8 +220,11 @@ function makeImageBlock(data = {}) {
         <span>Upload image</span>
         <input type="file" data-block-asset accept="image/*">
       </label>
-      <input type="text" data-image-src placeholder="./image-01.png" value="${escapeHtml(data.src || "")}">
       <input type="text" data-image-alt placeholder="Image description" value="${escapeHtml(data.alt || "")}">
+      <details class="block-path-options">
+        <summary>Use image path or URL</summary>
+        <input type="text" data-image-src placeholder="./image-01.png or https://..." value="${escapeHtml(data.src || "")}">
+      </details>
       <figure data-image-preview></figure>
     </div>
   `;
@@ -241,8 +244,11 @@ function makeVideoBlock(data = {}) {
         <span>Upload video</span>
         <input type="file" data-block-asset accept="video/mp4,video/webm">
       </label>
-      <input type="text" data-video-src placeholder="./demo.mp4" value="${escapeHtml(data.src || "")}">
-      <input type="text" data-video-type placeholder="video/mp4" value="${escapeHtml(data.type || data.typeHint || "video/mp4")}">
+      <details class="block-path-options">
+        <summary>Use video path or URL</summary>
+        <input type="text" data-video-src placeholder="./demo.mp4 or https://..." value="${escapeHtml(data.src || "")}">
+        <input type="text" data-video-type placeholder="video/mp4" value="${escapeHtml(data.type || data.typeHint || "video/mp4")}">
+      </details>
       <figure data-video-preview></figure>
     </div>
   `;
@@ -697,7 +703,7 @@ function updateImagePreview(block) {
   if (!preview) return;
   preview.innerHTML = src
     ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}">`
-    : `<div class="block-empty-preview">Add an image path or upload one from Media.</div>`;
+    : `<div class="block-empty-preview">Upload an image or add a path from advanced options.</div>`;
 }
 
 function updateVideoPreview(block) {
@@ -707,7 +713,7 @@ function updateVideoPreview(block) {
   if (!preview) return;
   preview.innerHTML = src
     ? `<video controls playsinline><source src="${escapeHtml(src)}" type="${escapeHtml(type)}"></video>`
-    : `<div class="block-empty-preview">Add a video path or upload one from Media.</div>`;
+    : `<div class="block-empty-preview">Upload a video or add a path from advanced options.</div>`;
 }
 
 function updateEmbedPreview(block) {
