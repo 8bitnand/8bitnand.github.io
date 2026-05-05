@@ -981,6 +981,7 @@ video {
 .story-description-input:focus,
 .editor-wrap textarea:focus,
 .block-shell input:focus,
+.block-shell select:focus,
 .block-shell textarea:focus {
   border-color: var(--accent);
   outline: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
@@ -1295,6 +1296,11 @@ video {
 .composer-code-block textarea,
 .composer-math-block textarea {
   font: 0.95rem/1.65 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.composer-code-block textarea {
+  min-height: 72px;
+  overflow: hidden;
 }
 
 .composer-media-block figure,

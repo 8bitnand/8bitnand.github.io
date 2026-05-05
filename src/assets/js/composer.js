@@ -127,6 +127,13 @@ function codeLanguageOptions(selected = "python") {
     .join("");
 }
 
+function autosizeCodeInput(target) {
+  const textarea = target?.matches?.("[data-code-input]") ? target : target?.querySelector?.("[data-code-input]");
+  if (!textarea) return;
+  textarea.style.height = "auto";
+  textarea.style.height = `${Math.max(textarea.scrollHeight, 72)}px`;
+}
+
 function getYouTubeId(rawUrl) {
   try {
     const url = new URL(rawUrl);
@@ -395,6 +402,7 @@ function insertBlock(type, data = {}, replaceBlock = null) {
     editor.append(block);
   }
 
+  autosizeCodeInput(block);
   activeBlock = block;
   hideSlashMenu();
   syncHiddenMarkdown();
@@ -445,6 +453,7 @@ function renderBlocks(blocks = []) {
     return !(isEmptyParagraph && previousIsEmptyParagraph);
   });
   safeBlocks.forEach((block) => editor.append(createBlock(block.type, block)));
+  editor.querySelectorAll("[data-code-input]").forEach(autosizeCodeInput);
   ensureEditorHasBlock();
   syncHiddenMarkdown();
 }
@@ -973,6 +982,7 @@ function handleBlockInput(event) {
     else hideSlashMenu();
   }
 
+  if (event.target.matches("[data-code-input]")) autosizeCodeInput(event.target);
   if (event.target.matches("[data-image-src], [data-image-alt]")) {
     block.dataset.previewSrc = "";
     updateImagePreview(block);
