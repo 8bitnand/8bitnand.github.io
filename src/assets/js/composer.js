@@ -78,6 +78,25 @@ function setEditableText(node, text = "") {
   if (node) node.textContent = text;
 }
 
+function blockActionsMarkup() {
+  return `
+    <div class="block-actions">
+      <button type="button" data-block-continue>Done</button>
+      <button type="button" data-block-delete>Delete</button>
+    </div>
+  `;
+}
+
+function blockHeaderMarkup(label, extra = "") {
+  return `
+    <div class="block-shell-header">
+      <span>${escapeHtml(label)}</span>
+      ${extra}
+      ${blockActionsMarkup()}
+    </div>
+  `;
+}
+
 function getYouTubeId(rawUrl) {
   try {
     const url = new URL(rawUrl);
@@ -161,6 +180,12 @@ function makeTextBlock(type, text = "") {
   editable.dataset.placeholder = type === "h2" ? "Section heading" : type === "quote" ? "Write a quote" : "Type / for blocks";
   setEditableText(editable, text);
   block.append(editable);
+  if (type !== "paragraph") {
+    const actions = document.createElement("div");
+    actions.className = "inline-block-actions";
+    actions.innerHTML = blockActionsMarkup();
+    block.append(actions);
+  }
   return block;
 }
 
@@ -170,10 +195,12 @@ function makeCodeBlock(data = {}) {
   block.dataset.blockType = "code";
   block.innerHTML = `
     <div class="block-shell">
-      <div class="block-shell-header">
-        <span>Code</span>
-        <input type="text" data-code-language placeholder="language" value="${escapeHtml(data.language || "python")}">
-      </div>
+      ${blockHeaderMarkup("Code", `
+        <label class="code-language-field">
+          <span>Language</span>
+          <input type="text" data-code-language aria-label="Code language" placeholder="python" value="${escapeHtml(data.language || "python")}">
+        </label>
+      `)}
       <textarea data-code-input spellcheck="false" placeholder="Write code here...">${escapeHtml(data.code || "print(\"hello\")")}</textarea>
       <pre class="gist-code"><code data-code-preview></code></pre>
     </div>
@@ -188,7 +215,7 @@ function makeImageBlock(data = {}) {
   block.dataset.blockType = "image";
   block.innerHTML = `
     <div class="block-shell">
-      <div class="block-shell-header"><span>Image</span></div>
+      ${blockHeaderMarkup("Image")}
       <input type="text" data-image-src placeholder="./image-01.png" value="${escapeHtml(data.src || "")}">
       <input type="text" data-image-alt placeholder="Image description" value="${escapeHtml(data.alt || "")}">
       <figure data-image-preview></figure>
@@ -205,7 +232,7 @@ function makeVideoBlock(data = {}) {
   block.dataset.blockType = "video";
   block.innerHTML = `
     <div class="block-shell">
-      <div class="block-shell-header"><span>Video</span></div>
+      ${blockHeaderMarkup("Video")}
       <input type="text" data-video-src placeholder="./demo.mp4" value="${escapeHtml(data.src || "")}">
       <input type="text" data-video-type placeholder="video/mp4" value="${escapeHtml(data.type || data.typeHint || "video/mp4")}">
       <figure data-video-preview></figure>
@@ -232,7 +259,7 @@ function makeEmbedBlock(type, data = {}) {
   block.dataset.blockType = type;
   block.innerHTML = `
     <div class="block-shell">
-      <div class="block-shell-header"><span>${labels[type]}</span></div>
+      ${blockHeaderMarkup(labels[type])}
       <input type="url" data-embed-url placeholder="${placeholders[type]}" value="${escapeHtml(data.url || "")}">
       <div data-embed-preview></div>
     </div>
@@ -247,7 +274,7 @@ function makeMathBlock(data = {}) {
   block.dataset.blockType = "math";
   block.innerHTML = `
     <div class="block-shell">
-      <div class="block-shell-header"><span>Math</span></div>
+      ${blockHeaderMarkup("Math")}
       <textarea data-math-input spellcheck="false" placeholder="PE_{(pos, 2i)} = \\sin(...)">${escapeHtml(data.expression || "")}</textarea>
       <div class="math-preview" data-math-preview></div>
     </div>
@@ -266,7 +293,7 @@ function makeTableBlock(data = {}) {
   ];
   block.innerHTML = `
     <div class="block-shell">
-      <div class="block-shell-header"><span>Table</span></div>
+      ${blockHeaderMarkup("Table")}
       <table>
         <tbody>
           ${rows.map((row) => `<tr>${row.map((cell) => `<td contenteditable="true">${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}
@@ -282,6 +309,7 @@ function makeCalloutBlock(data = {}) {
   block.className = "composer-block composer-callout-block article-callout";
   block.dataset.blockType = "callout";
   block.innerHTML = `
+    <div class="inline-block-actions">${blockActionsMarkup()}</div>
     <strong contenteditable="true" data-callout-title>${escapeHtml(data.title || "Note")}</strong>
     <p contenteditable="true" data-callout-body>${escapeHtml(data.body || "Write the note here.")}</p>
   `;
@@ -329,6 +357,29 @@ function insertBlock(type, data = {}, replaceBlock = null) {
   scheduleSave();
   focusBlock(block);
   return block;
+}
+
+function continueAfterBlock(block) {
+  const editor = blockEditor();
+  if (!editor || !block) return;
+
+  const paragraph = createBlock("paragraph");
+  block.after(paragraph);
+  syncHiddenMarkdown();
+  scheduleSave();
+  focusBlock(paragraph);
+}
+
+function deleteBlock(block) {
+  const editor = blockEditor();
+  if (!editor || !block) return;
+
+  const nextFocus = block.previousElementSibling || block.nextElementSibling;
+  block.remove();
+  ensureEditorHasBlock();
+  syncHiddenMarkdown();
+  scheduleSave();
+  focusBlock(nextFocus?.isConnected ? nextFocus : editor.querySelector(".composer-block"));
 }
 
 function ensureEditorHasBlock() {
@@ -878,6 +929,12 @@ function handleBlockKeydown(event) {
     return;
   }
 
+  if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && block.dataset.blockType !== "paragraph") {
+    event.preventDefault();
+    continueAfterBlock(block);
+    return;
+  }
+
   if (event.key === "Enter" && !event.shiftKey && event.target.matches("[data-block-text]")) {
     event.preventDefault();
     const text = textFromEditable(event.target);
@@ -923,6 +980,22 @@ function bindEditor() {
       ? activeBlock
       : null;
     insertBlock(button.dataset.slashBlock, {}, replace);
+  });
+
+  editor.addEventListener("click", (event) => {
+    const deleteButton = event.target.closest("[data-block-delete]");
+    const continueButton = event.target.closest("[data-block-continue]");
+    const block = event.target.closest(".composer-block");
+    if (!block) return;
+
+    if (deleteButton) {
+      deleteBlock(block);
+      return;
+    }
+
+    if (continueButton) {
+      continueAfterBlock(block);
+    }
   });
 
   document.querySelectorAll("[data-insert]").forEach((button) => {

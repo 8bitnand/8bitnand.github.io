@@ -1187,6 +1187,51 @@ video {
   text-transform: uppercase;
 }
 
+.block-actions,
+.inline-block-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.inline-block-actions {
+  margin-bottom: 8px;
+}
+
+.block-actions button,
+.inline-block-actions button {
+  min-height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  padding: 6px 9px;
+  text-transform: none;
+}
+
+.block-actions button:hover,
+.inline-block-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.code-language-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .block-shell input,
 .block-shell textarea {
   width: 100%;
@@ -1196,6 +1241,12 @@ video {
   color: var(--text);
   font: inherit;
   padding: 10px 11px;
+}
+
+.block-shell .code-language-field input {
+  width: 110px;
+  min-height: 30px;
+  padding: 5px 8px;
 }
 
 .block-shell textarea {
