@@ -61,7 +61,7 @@ You can write articles in two ways:
 
 The composer is available at `/compose/` on both the local site and the public GitHub Pages site.
 
-- Public site: visitors can write drafts, copy Markdown, and open the preview page.
+- Public site: visitors can write drafts, copy Markdown, open the preview page, and publish if they provide a GitHub token with write access.
 - Local dev site: same composer, with local rebuilds while you work.
 
 Run the local dev server:
@@ -83,9 +83,10 @@ The composer gives you:
 - A separate preview page at `/compose/preview/` when you want to inspect the rendered article.
 - Slash commands. Type `/` in a blank paragraph to insert supported blocks.
 - Toolbar buttons for headings, code, image, video, YouTube, Gist, math, quote, interactive demos, tables, and callouts.
-- Rendered editing blocks for the main article features. Markdown is generated in the background for copy.
-- Local media upload for images and videos. Uploaded files are kept in the browser for draft previews; copied Markdown references them by filename.
+- Rendered editing blocks for the main article features. Markdown is generated in the background for copy and publish.
+- Local media upload for images and videos. Uploaded files are kept in the browser for draft previews and uploaded with the article when publishing.
 - Copy Markdown button for moving the draft into an article folder manually.
+- Publish button that creates a branch and pull request for `8bitnand/8bitnand.github.io`.
 
 Supported slash blocks:
 
@@ -103,14 +104,29 @@ Supported slash blocks:
 /callout
 ```
 
-To publish a composer draft:
+To publish from the composer:
 
-1. Click `Copy Markdown`.
-2. Create a folder like `src/blog/my-new-article/`.
-3. Paste the copied Markdown into `src/blog/my-new-article/index.md`.
-4. Put images and videos referenced by the draft in that same folder.
-5. Build locally with `npm run build`.
-6. Commit on a branch and open a pull request to `main`.
+1. Add a GitHub token in Settings.
+2. Click `Publish`.
+3. Review and merge the pull request it creates.
+
+The token must be a fine-grained GitHub token with access to this repository and these permissions:
+
+```text
+Contents: Read and write
+Pull requests: Read and write
+Metadata: Read-only
+```
+
+The composer does not push directly to `main`. It creates a branch like:
+
+```text
+post/my-article-title-1770000000000
+```
+
+Then it opens a pull request into `main`. GitHub Pages deploys after that pull request is merged.
+
+You can still use `Copy Markdown` if you want to publish manually.
 
 ## Manual Article Creation
 

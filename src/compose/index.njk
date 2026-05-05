@@ -13,6 +13,7 @@ description: "Write and preview blog drafts."
     <div class="composer-actions">
       <button class="button secondary-button" type="button" data-copy-markdown>Copy Markdown</button>
       <button class="button secondary-button" type="button" data-open-preview>Preview Page</button>
+      <button class="button primary-button" type="button" data-publish>Publish</button>
     </div>
   </header>
 
@@ -60,13 +61,21 @@ description: "Write and preview blog drafts."
             <span>Upload images or videos</span>
             <input type="file" data-asset-input multiple accept="image/*,video/mp4,video/webm">
           </label>
-          <p class="composer-help">Uploaded files are kept in this browser for draft previews. Copied Markdown references them by filename.</p>
+          <p class="composer-help">Uploaded files are kept in this browser for draft previews and uploaded with the article when publishing.</p>
           <div class="asset-list" data-asset-list></div>
 
           <div class="composer-divider"></div>
 
           <h2>Publishing</h2>
-          <p class="composer-help">Use Copy Markdown, create a folder under <code>src/blog/</code>, save it as <code>index.md</code>, add media files beside it, then open a pull request to main.</p>
+          <label>
+            <span>GitHub token</span>
+            <input type="password" data-field="token" placeholder="Fine-grained token">
+          </label>
+          <label class="check-row">
+            <input type="checkbox" data-field="rememberToken">
+            <span>Remember token in this browser</span>
+          </label>
+          <p class="composer-help">Publishing creates a branch and pull request for <code>8bitnand/8bitnand.github.io</code>. The token needs Contents read/write and Pull requests read/write.</p>
           <div class="composer-status" data-composer-status aria-live="polite"></div>
         </div>
       </details>

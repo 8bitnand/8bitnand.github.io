@@ -1,5 +1,8 @@
 const draftKey = "8bit-blogs-composer-draft";
+const tokenKey = "8bit-blogs-github-token";
 const composerRoot = document.querySelector("[data-composer-mode]");
+const publishRepository = "8bitnand/8bitnand.github.io";
+const publishBaseBranch = "main";
 
 const blockTemplates = {
   h2: { label: "Heading", hint: "Add a section heading" },
@@ -609,6 +612,7 @@ function readForm() {
     cover: String(value("cover")).trim(),
     coverAlt: String(value("coverAlt")).trim(),
     hideCover: checked("hideCover"),
+    rememberToken: checked("rememberToken"),
     blocks: serializeBlocks(),
     content: hiddenEditor()?.value || fallback.content || ""
   };
@@ -624,6 +628,7 @@ function writeForm(draft = {}) {
     cover: "",
     coverAlt: "",
     hideCover: false,
+    rememberToken: false,
     content: "",
     blocks: []
   };
@@ -642,12 +647,23 @@ function writeForm(draft = {}) {
   }
 
   renderBlocks(Array.isArray(value.blocks) && value.blocks.length ? value.blocks : markdownToBlocks(value.content));
+
+  const token = localStorage.getItem(tokenKey);
+  if (token && getField("token")) {
+    getField("token").value = token;
+    getField("rememberToken").checked = true;
+  }
 }
 
 function saveDraft() {
   if (!composerRoot) return;
   const draft = { ...readForm(), assets: mediaAssets };
   localStorage.setItem(draftKey, JSON.stringify(draft));
+  if (draft.rememberToken && getField("token")?.value) {
+    localStorage.setItem(tokenKey, getField("token").value);
+  } else if (!draft.rememberToken) {
+    localStorage.removeItem(tokenKey);
+  }
 
   const saveState = $("[data-save-state]");
   if (saveState) saveState.textContent = `Saved ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
@@ -880,6 +896,98 @@ function setComposerStatus(message, type = "") {
   status.innerHTML = message;
 }
 
+function base64Encode(value = "") {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+}
+
+async function githubRequest(path, options = {}) {
+  const token = getField("token")?.value.trim();
+  if (!token) throw new Error("Add a GitHub token in Settings before publishing.");
+
+  const response = await fetch(`https://api.github.com${path}`, {
+    ...options,
+    headers: {
+      accept: "application/vnd.github+json",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      "x-github-api-version": "2022-11-28",
+      ...(options.headers || {})
+    }
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const details = Array.isArray(body.errors)
+      ? body.errors.map((error) => error.message || error.code).filter(Boolean).join("; ")
+      : "";
+    throw new Error([body.message, details].filter(Boolean).join(": ") || `GitHub request failed: ${response.status}`);
+  }
+  return body;
+}
+
+async function publishDraft() {
+  const draft = readForm();
+  const [owner, repo] = publishRepository.split("/");
+
+  if (!draft.title.trim()) throw new Error("Add a title before publishing.");
+  if (!draft.description.trim()) throw new Error("Add a description before publishing.");
+
+  setComposerStatus("Creating publish branch...", "pending");
+
+  const branch = `post/${draft.slug}-${Date.now()}`;
+  const baseRef = await githubRequest(`/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(publishBaseBranch)}`);
+
+  await githubRequest(`/repos/${owner}/${repo}/git/refs`, {
+    method: "POST",
+    body: JSON.stringify({
+      ref: `refs/heads/${branch}`,
+      sha: baseRef.object.sha
+    })
+  });
+
+  const articlePath = `src/blog/${draft.slug}/index.md`;
+  await githubRequest(`/repos/${owner}/${repo}/contents/${articlePath}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      message: `Add ${draft.title}`,
+      content: base64Encode(buildFrontMatter(draft)),
+      branch
+    })
+  });
+
+  for (const asset of mediaAssets) {
+    await githubRequest(`/repos/${owner}/${repo}/contents/src/blog/${draft.slug}/${asset.name}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        message: `Add media for ${draft.title}`,
+        content: asset.base64,
+        branch
+      })
+    });
+  }
+
+  const pr = await githubRequest(`/repos/${owner}/${repo}/pulls`, {
+    method: "POST",
+    body: JSON.stringify({
+      title: `Add ${draft.title}`,
+      head: `${owner}:${branch}`,
+      base: publishBaseBranch,
+      body: [
+        "Adds a new article from the 8bit blogs composer.",
+        "",
+        `Article path: \`${articlePath}\``
+      ].join("\n")
+    })
+  });
+
+  setComposerStatus(`<a href="${escapeHtml(pr.html_url)}" target="_blank" rel="noopener noreferrer">Pull request created</a>. Merge it to publish on GitHub Pages.`, "success");
+}
+
 function handleBlockInput(event) {
   const block = event.target.closest(".composer-block");
   if (!block) return;
@@ -1067,6 +1175,16 @@ function bindComposer() {
       event.preventDefault();
       window.opener.focus();
       window.close();
+    }
+  });
+
+  $("[data-publish]")?.addEventListener("click", async () => {
+    try {
+      if (settingsPanel) settingsPanel.open = true;
+      saveDraft();
+      await publishDraft();
+    } catch (error) {
+      setComposerStatus(escapeHtml(error.message), "error");
     }
   });
 }
