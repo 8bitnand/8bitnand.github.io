@@ -21,34 +21,33 @@ description: "Write and preview blog drafts."
 
   <div class="composer-layout">
     <aside class="composer-panel">
-      <h2>Article</h2>
-      <details class="composer-disclosure">
-        <summary>URL slug</summary>
+      <details class="composer-disclosure composer-section-disclosure">
+        <summary>Article</summary>
         <label>
           <span>Slug</span>
           <input type="text" data-field="slug" placeholder="my-article-title">
         </label>
+        <label>
+          <span>Date</span>
+          <input type="date" data-field="date">
+        </label>
+        <label>
+          <span>Tags</span>
+          <input type="text" data-field="tags" placeholder="ai, tutorial, transformers">
+        </label>
+        <label>
+          <span>Cover path</span>
+          <input type="text" data-field="cover" placeholder="./cover.png">
+        </label>
+        <label>
+          <span>Cover alt</span>
+          <input type="text" data-field="coverAlt" placeholder="Cover image description">
+        </label>
+        <label class="check-row">
+          <input type="checkbox" data-field="hideCover">
+          <span>Hide cover inside article</span>
+        </label>
       </details>
-      <label>
-        <span>Date</span>
-        <input type="date" data-field="date">
-      </label>
-      <label>
-        <span>Tags</span>
-        <input type="text" data-field="tags" placeholder="ai, tutorial, transformers">
-      </label>
-      <label>
-        <span>Cover path</span>
-        <input type="text" data-field="cover" placeholder="./cover.png">
-      </label>
-      <label>
-        <span>Cover alt</span>
-        <input type="text" data-field="coverAlt" placeholder="Cover image description">
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-field="hideCover">
-        <span>Hide cover inside article</span>
-      </label>
 
       <div class="composer-divider"></div>
 

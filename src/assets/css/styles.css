@@ -881,9 +881,20 @@ video {
   padding: 9px 10px;
 }
 
+.composer-section-disclosure summary {
+  color: var(--text);
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .composer-disclosure label {
   margin: 0;
   padding: 0 10px 10px;
+}
+
+.composer-disclosure label:first-of-type {
+  padding-top: 4px;
 }
 
 .composer-panel input[type="text"],
