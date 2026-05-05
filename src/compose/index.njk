@@ -1,121 +1,109 @@
 ---
 layout: base.njk
 title: Composer
-description: "Write, preview, and publish blog drafts."
+description: "Write and preview blog drafts."
 ---
 
 <section class="composer" data-composer-mode="editor">
   <header class="composer-header">
     <div>
-      <p class="composer-kicker">Composer</p>
-      <h1>Write a new article</h1>
+      <p class="composer-kicker">Draft</p>
+      <h1>New story</h1>
     </div>
     <div class="composer-actions">
       <button class="button secondary-button" type="button" data-copy-markdown>Copy Markdown</button>
       <button class="button secondary-button" type="button" data-open-preview>Preview Page</button>
-      <button class="button primary-button" type="button" data-publish>Publish PR</button>
+      <button class="button primary-button" type="button" data-publish>Publish</button>
     </div>
   </header>
 
   <div class="composer-layout">
     <aside class="composer-panel">
-      <h2>Article</h2>
-      <label>
-        <span>Title</span>
-        <input type="text" data-field="title" placeholder="My article title">
-      </label>
-      <label>
-        <span>Slug</span>
-        <input type="text" data-field="slug" placeholder="my-article-title">
-      </label>
-      <label>
-        <span>Description</span>
-        <textarea data-field="description" rows="4" placeholder="Short summary for home, archive, and search."></textarea>
-      </label>
-      <label>
-        <span>Date</span>
-        <input type="date" data-field="date">
-      </label>
-      <label>
-        <span>Tags</span>
-        <input type="text" data-field="tags" placeholder="ai, tutorial, transformers">
-      </label>
-      <label>
-        <span>Cover path</span>
-        <input type="text" data-field="cover" placeholder="./cover.png">
-      </label>
-      <label>
-        <span>Cover alt</span>
-        <input type="text" data-field="coverAlt" placeholder="Cover image description">
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-field="hideCover">
-        <span>Hide cover inside article</span>
-      </label>
+      <details class="composer-disclosure composer-settings-disclosure">
+        <summary aria-label="Settings">
+          <svg class="settings-icon" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path>
+            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 1 1-4 0v-.08a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1H3a2 2 0 1 1 0-4h.08A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 8.96 4.6 1.7 1.7 0 0 0 10 3.04V3a2 2 0 1 1 4 0v.08a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.18.6.8 1 1.56 1H21a2 2 0 1 1 0 4h-.08A1.7 1.7 0 0 0 19.4 15Z"></path>
+          </svg>
+          <span class="settings-label">Settings</span>
+        </summary>
+        <div class="composer-settings-body">
+          <h2>Article</h2>
+          <label>
+            <span>Slug</span>
+            <input type="text" data-field="slug" placeholder="my-article-title">
+          </label>
+          <label>
+            <span>Date</span>
+            <input type="date" data-field="date">
+          </label>
+          <label>
+            <span>Tags</span>
+            <input type="text" data-field="tags" placeholder="ai, tutorial, transformers">
+          </label>
+          <label>
+            <span>Cover path</span>
+            <input type="text" data-field="cover" placeholder="./cover.png">
+          </label>
+          <label>
+            <span>Cover alt</span>
+            <input type="text" data-field="coverAlt" placeholder="Cover image description">
+          </label>
+          <label class="check-row">
+            <input type="checkbox" data-field="hideCover">
+            <span>Hide cover inside article</span>
+          </label>
 
-      <div class="composer-divider"></div>
+          <div class="composer-divider"></div>
 
-      <h2>Media</h2>
-      <label class="file-drop">
-        <span>Upload images or videos</span>
-        <input type="file" data-asset-input multiple accept="image/*,video/mp4,video/webm">
-      </label>
-      <p class="composer-help">Uploaded files are kept in memory until publishing. They are saved next to the article.</p>
-      <div class="asset-list" data-asset-list></div>
+          <h2>Media</h2>
+          <label class="file-drop">
+            <span>Upload images or videos</span>
+            <input type="file" data-asset-input multiple accept="image/*,video/mp4,video/webm">
+          </label>
+          <p class="composer-help">Uploaded files are kept in this browser for draft previews and uploaded with the article when publishing.</p>
+          <div class="asset-list" data-asset-list></div>
 
-      <div class="composer-divider"></div>
+          <div class="composer-divider"></div>
 
-      <h2>GitHub publish</h2>
-      <label>
-        <span>Repository</span>
-        <input type="text" data-field="repository" value="8bitnand/8bitnand.github.io">
-      </label>
-      <label>
-        <span>Base branch</span>
-        <input type="text" data-field="baseBranch" value="main">
-      </label>
-      <label>
-        <span>GitHub token</span>
-        <input type="password" data-field="token" placeholder="Fine-grained token">
-      </label>
-      <label class="check-row">
-        <input type="checkbox" data-field="rememberToken">
-        <span>Remember token in this browser</span>
-      </label>
-      <p class="composer-help">Token needs Contents read/write and Pull requests read/write. Publishing creates a branch and PR, not a direct main push.</p>
-      <div class="publish-status" data-publish-status aria-live="polite"></div>
+          <h2>Publishing</h2>
+          <label>
+            <span>GitHub token</span>
+            <input type="password" data-field="token" placeholder="Fine-grained token">
+          </label>
+          <label class="check-row">
+            <input type="checkbox" data-field="rememberToken">
+            <span>Remember token in this browser</span>
+          </label>
+          <p class="composer-help">Publishing writes the article and media directly to <code>main</code> in <code>8bitnand/8bitnand.github.io</code>. The token needs Contents read/write.</p>
+          <div class="composer-status" data-composer-status aria-live="polite"></div>
+        </div>
+      </details>
     </aside>
 
     <section class="editor-pane">
+      <div class="story-head">
+        <input class="story-title-input" type="text" data-field="title" placeholder="Article title">
+        <textarea class="story-description-input" data-field="description" rows="2" placeholder="Short subtitle / summary for cards, search, and archive"></textarea>
+      </div>
       <div class="editor-toolbar" aria-label="Editor tools">
         <button type="button" data-insert="h2">H2</button>
         <button type="button" data-insert="code">Code</button>
         <button type="button" data-insert="image">Image</button>
+        <button type="button" data-insert="video">Video</button>
         <button type="button" data-insert="youtube">YouTube</button>
         <button type="button" data-insert="gist">Gist</button>
         <button type="button" data-insert="math">Math</button>
         <button type="button" data-insert="quote">Quote</button>
         <button type="button" data-insert="demo">Demo</button>
+        <button type="button" data-insert="table">Table</button>
+        <button type="button" data-insert="callout">Callout</button>
       </div>
       <div class="editor-wrap">
-        <textarea data-editor spellcheck="true" placeholder="Start writing. Type / on a new line for blocks."></textarea>
+        <textarea data-editor hidden aria-hidden="true"></textarea>
+        <div class="block-editor article-content" data-block-editor aria-label="Article body"></div>
         <div class="slash-menu" data-slash-menu hidden></div>
       </div>
-    </section>
-
-    <section class="preview-pane" aria-label="Live preview">
-      <div class="preview-bar">
-        <span>Live Preview</span>
-        <span data-save-state>Draft saved locally</span>
-      </div>
-      <article class="preview-article">
-        <header class="preview-hero">
-          <p class="eyebrow" data-preview-meta></p>
-          <h1 data-preview-title>Untitled article</h1>
-          <p data-preview-description></p>
-        </header>
-        <div class="article-content" data-preview-content></div>
-      </article>
     </section>
   </div>
 </section>

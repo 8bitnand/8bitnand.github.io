@@ -59,22 +59,34 @@ You can write articles in two ways:
 
 ## Browser Composer
 
-Open:
+The composer is available at `/compose/` on both the local site and the public GitHub Pages site.
+
+- Public site: visitors can write drafts, copy Markdown, open the preview page, and publish if they provide a GitHub token with write access.
+- Local dev site: same composer, with local rebuilds while you work.
+
+Run the local dev server:
+
+```bash
+npm run dev
+```
+
+Then open:
 
 ```text
-/compose/
+http://localhost:8080/compose/
 ```
 
 The composer gives you:
 
 - Metadata controls for title, slug, description, date, tags, cover, and cover alt text.
-- A Markdown editor with a live preview.
-- A separate preview page at `/compose/preview/`.
-- Slash commands. Type `/` on a new line to insert supported blocks.
-- Toolbar buttons for headings, code, image, YouTube, Gist, math, quote, and interactive demos.
-- Local media upload for images and videos. Uploaded files are published into the same article folder.
-- Copy Markdown button for manual publishing.
-- Publish PR button that creates a GitHub branch, commits the article, uploads media, and opens a pull request to `main`.
+- A block-style article editor with title and subtitle fields in the writing surface.
+- A separate preview page at `/compose/preview/` when you want to inspect the rendered article.
+- Slash commands. Type `/` in a blank paragraph to insert supported blocks.
+- Toolbar buttons for headings, code, image, video, YouTube, Gist, math, quote, interactive demos, tables, and callouts.
+- Rendered editing blocks for the main article features. Markdown is generated in the background for copy and publish.
+- Local media upload for images and videos. Uploaded files are kept in the browser for draft previews and uploaded with the article when publishing.
+- Copy Markdown button for moving the draft into an article folder manually.
+- Publish button that writes the article and uploaded media directly to `main` in `8bitnand/8bitnand.github.io`.
 
 Supported slash blocks:
 
@@ -92,25 +104,22 @@ Supported slash blocks:
 /callout
 ```
 
-Publishing from the composer requires a GitHub token in your browser. Use a fine-grained token with access to this repository and these permissions:
+To publish from the composer:
+
+1. Add a GitHub token in Settings.
+2. Click `Publish`.
+3. Wait for GitHub Pages CI to deploy the new `main` commit.
+
+The token must be a fine-grained GitHub token with access to this repository and these permissions:
 
 ```text
 Contents: Read and write
-Pull requests: Read and write
 Metadata: Read-only
 ```
 
-Create the token from the same GitHub account that owns or can write to `8bitnand/8bitnand.github.io`. If GitHub says `must be a collaborator`, the token is usually from the wrong account or does not have write access to the repository.
+The composer publishes through the GitHub Contents API. It creates or updates `src/blog/<slug>/index.md` on `main`, uploads media into the same folder, and then GitHub Pages deploys from the new `main` commit.
 
-The token is only used in your browser. If you select "Remember token", it is stored in browser localStorage.
-
-The composer does not push directly to `main`. It creates a branch like:
-
-```text
-post/my-article-title-1770000000000
-```
-
-Then it opens a pull request into `main`.
+You can still use `Copy Markdown` if you want to publish manually.
 
 ## Manual Article Creation
 
@@ -427,7 +436,7 @@ The public URL is:
 https://8bitnand.github.io/
 ```
 
-Do not push directly to `main` or `stge`. Create a branch, push it, and open a pull request.
+For local git changes, do not push directly to `main` or `stge`. Create a branch, push it, and open a pull request.
 
 Typical flow:
 
