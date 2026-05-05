@@ -1236,6 +1236,7 @@ video {
 }
 
 .block-shell input,
+.block-shell select,
 .block-shell textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -1280,8 +1281,8 @@ video {
   margin-top: 8px;
 }
 
-.block-shell .code-language-field input {
-  width: 110px;
+.block-shell .code-language-field select {
+  width: 148px;
   min-height: 30px;
   padding: 5px 8px;
 }
@@ -1294,10 +1295,6 @@ video {
 .composer-code-block textarea,
 .composer-math-block textarea {
   font: 0.95rem/1.65 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-}
-
-.composer-code-block .gist-code {
-  margin: 0;
 }
 
 .composer-media-block figure,

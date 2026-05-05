@@ -5,7 +5,7 @@ const canPublish = composerRoot?.dataset.canPublish === "true";
 
 const blockTemplates = {
   h2: { label: "Heading", hint: "Add a section heading" },
-  code: { label: "Code block", hint: "Write code with a rendered preview" },
+  code: { label: "Code block", hint: "Write a fenced code block" },
   image: { label: "Image", hint: "Local image from article folder" },
   video: { label: "Local video", hint: "MP4/WebM file next to the article" },
   youtube: { label: "YouTube", hint: "Embedded YouTube video" },
@@ -95,6 +95,36 @@ function blockHeaderMarkup(label, extra = "") {
       ${blockActionsMarkup()}
     </div>
   `;
+}
+
+const codeLanguages = [
+  ["text", "Plain text"],
+  ["python", "Python"],
+  ["javascript", "JavaScript"],
+  ["typescript", "TypeScript"],
+  ["bash", "Bash"],
+  ["shell", "Shell"],
+  ["json", "JSON"],
+  ["yaml", "YAML"],
+  ["html", "HTML"],
+  ["css", "CSS"],
+  ["markdown", "Markdown"],
+  ["sql", "SQL"],
+  ["java", "Java"],
+  ["c", "C"],
+  ["cpp", "C++"],
+  ["go", "Go"],
+  ["rust", "Rust"],
+  ["dockerfile", "Dockerfile"]
+];
+
+function codeLanguageOptions(selected = "python") {
+  const current = selected || "python";
+  const hasCurrent = codeLanguages.some(([value]) => value === current);
+  const options = hasCurrent ? codeLanguages : [[current, current], ...codeLanguages];
+  return options
+    .map(([value, label]) => `<option value="${escapeHtml(value)}"${value === current ? " selected" : ""}>${escapeHtml(label)}</option>`)
+    .join("");
 }
 
 function getYouTubeId(rawUrl) {
@@ -198,14 +228,14 @@ function makeCodeBlock(data = {}) {
       ${blockHeaderMarkup("Code", `
         <label class="code-language-field">
           <span>Language</span>
-          <input type="text" data-code-language aria-label="Code language" placeholder="python" value="${escapeHtml(data.language || "python")}">
+          <select data-code-language aria-label="Code language">
+            ${codeLanguageOptions(data.language || "python")}
+          </select>
         </label>
       `)}
       <textarea data-code-input spellcheck="false" placeholder="Write code here...">${escapeHtml(data.code || "print(\"hello\")")}</textarea>
-      <pre class="gist-code"><code data-code-preview></code></pre>
     </div>
   `;
-  updateCodePreview(block);
   return block;
 }
 
@@ -690,12 +720,6 @@ function slashCommandFromText(value = "") {
   return slashBlocks.find((block) => block.id === query)?.id || slashBlocks.find((block) => block.id.startsWith(query))?.id || null;
 }
 
-function updateCodePreview(block) {
-  const input = block.querySelector("[data-code-input]");
-  const preview = block.querySelector("[data-code-preview]");
-  if (preview) preview.textContent = input?.value || "";
-}
-
 function updateImagePreview(block) {
   const src = block.dataset.previewSrc || block.querySelector("[data-image-src]")?.value.trim();
   const alt = block.querySelector("[data-image-alt]")?.value.trim() || "";
@@ -949,7 +973,6 @@ function handleBlockInput(event) {
     else hideSlashMenu();
   }
 
-  if (event.target.matches("[data-code-input]")) updateCodePreview(block);
   if (event.target.matches("[data-image-src], [data-image-alt]")) {
     block.dataset.previewSrc = "";
     updateImagePreview(block);
