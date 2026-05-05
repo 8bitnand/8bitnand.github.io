@@ -890,10 +890,10 @@ async function handleBlockAsset(event) {
 }
 
 function setComposerStatus(message, type = "") {
-  const status = $("[data-composer-status]");
-  if (!status) return;
-  status.dataset.status = type;
-  status.innerHTML = message;
+  document.querySelectorAll("[data-composer-status]").forEach((status) => {
+    status.dataset.status = type;
+    status.innerHTML = message;
+  });
 }
 
 function base64Encode(value = "") {
@@ -1159,12 +1159,17 @@ function bindComposer() {
   });
 
   $("[data-publish]")?.addEventListener("click", async () => {
+    const publishButton = $("[data-publish]");
     try {
-      if (settingsPanel) settingsPanel.open = true;
+      publishButton.disabled = true;
+      publishButton.textContent = "Publishing...";
       saveDraft();
       await publishDraft();
     } catch (error) {
       setComposerStatus(escapeHtml(error.message), "error");
+    } finally {
+      publishButton.disabled = false;
+      publishButton.textContent = "Publish";
     }
   });
 }
