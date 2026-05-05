@@ -3,6 +3,7 @@ const tokenKey = "8bit-blogs-github-token";
 const composerRoot = document.querySelector("[data-composer-mode]");
 const publishRepository = "8bitnand/8bitnand.github.io";
 const publishBaseBranch = "main";
+const publishSiteUrl = "https://8bitnand.github.io";
 
 const blockTemplates = {
   h2: { label: "Heading", hint: "Add a section heading" },
@@ -896,6 +897,14 @@ function setComposerStatus(message, type = "") {
   });
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function articleUrl(slug) {
+  return `${publishSiteUrl}/blog/${slug}/`;
+}
+
 function base64Encode(value = "") {
   const bytes = new TextEncoder().encode(value);
   let binary = "";
@@ -948,24 +957,67 @@ async function publishFile(owner, repo, path, content, message) {
   });
 }
 
+async function waitForDeployment(owner, repo, commitSha, slug) {
+  const targetUrl = articleUrl(slug);
+  const targetLink = `<a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener noreferrer">Open article</a>`;
+
+  if (!commitSha) {
+    setComposerStatus(`Published to main. GitHub Pages will deploy shortly. ${targetLink}`, "success");
+    return;
+  }
+
+  for (let attempt = 0; attempt < 45; attempt += 1) {
+    try {
+      const runs = await githubRequest(`/repos/${owner}/${repo}/actions/runs?branch=${encodeURIComponent(publishBaseBranch)}&event=push&head_sha=${encodeURIComponent(commitSha)}&per_page=5`);
+      const run = runs.workflow_runs?.[0];
+
+      if (!run) {
+        setComposerStatus("Published to main. Waiting for GitHub Actions to start...", "pending");
+      } else if (run.status === "queued") {
+        setComposerStatus(`<a href="${escapeHtml(run.html_url)}" target="_blank" rel="noopener noreferrer">GitHub Actions queued</a>. Waiting for build...`, "pending");
+      } else if (run.status === "in_progress") {
+        setComposerStatus(`<a href="${escapeHtml(run.html_url)}" target="_blank" rel="noopener noreferrer">Building and deploying</a>...`, "pending");
+      } else if (run.status === "completed") {
+        if (run.conclusion === "success") {
+          setComposerStatus(`Published and deployed. ${targetLink}`, "success");
+          return;
+        }
+        setComposerStatus(`GitHub Actions finished with ${run.conclusion || "an unknown result"}. <a href="${escapeHtml(run.html_url)}" target="_blank" rel="noopener noreferrer">Open workflow</a>`, "error");
+        return;
+      }
+    } catch (error) {
+      setComposerStatus(`Published to main. Could not read GitHub Actions status, but CI should deploy shortly. ${targetLink}`, "success");
+      return;
+    }
+
+    await sleep(4000);
+  }
+
+  setComposerStatus(`Published to main. CI is still running. ${targetLink}`, "pending");
+}
+
 async function publishDraft() {
   const draft = readForm();
   const [owner, repo] = publishRepository.split("/");
 
+  setComposerStatus("Validating article...", "pending");
   if (!draft.title.trim()) throw new Error("Add a title before publishing.");
   if (!draft.description.trim()) throw new Error("Add a description before publishing.");
 
-  setComposerStatus("Publishing to main...", "pending");
+  setComposerStatus("Publishing article to main...", "pending");
 
   const articlePath = `src/blog/${draft.slug}/index.md`;
-  const articleResult = await publishFile(owner, repo, articlePath, base64Encode(buildFrontMatter(draft)), `Publish ${draft.title}`);
+  let latestResult = await publishFile(owner, repo, articlePath, base64Encode(buildFrontMatter(draft)), `Publish ${draft.title}`);
 
-  for (const asset of mediaAssets) {
-    await publishFile(owner, repo, `src/blog/${draft.slug}/${asset.name}`, asset.base64, `Publish media for ${draft.title}`);
+  for (const [index, asset] of mediaAssets.entries()) {
+    setComposerStatus(`Uploading media ${index + 1} of ${mediaAssets.length}...`, "pending");
+    latestResult = await publishFile(owner, repo, `src/blog/${draft.slug}/${asset.name}`, asset.base64, `Publish media for ${draft.title}`);
   }
 
-  const commitUrl = articleResult?.commit?.html_url;
-  setComposerStatus(`${commitUrl ? `<a href="${escapeHtml(commitUrl)}" target="_blank" rel="noopener noreferrer">Published to main</a>` : "Published to main"}. GitHub Pages will deploy after CI finishes.`, "success");
+  const commitSha = latestResult?.commit?.sha;
+  const commitUrl = latestResult?.commit?.html_url;
+  setComposerStatus(`${commitUrl ? `<a href="${escapeHtml(commitUrl)}" target="_blank" rel="noopener noreferrer">Published to main</a>` : "Published to main"}. Waiting for CI...`, "pending");
+  await waitForDeployment(owner, repo, commitSha, draft.slug);
 }
 
 function handleBlockInput(event) {
