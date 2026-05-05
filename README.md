@@ -76,8 +76,8 @@ http://localhost:8080/compose/
 The composer gives you:
 
 - Metadata controls for title, slug, description, date, tags, cover, and cover alt text.
-- A Markdown editor with a live preview.
-- A separate preview page at `/compose/preview/`.
+- A focused Markdown editor with title and subtitle fields in the writing surface.
+- A separate preview page at `/compose/preview/` when you want to inspect the rendered article.
 - Slash commands. Type `/` on a new line to insert supported blocks.
 - Toolbar buttons for headings, code, image, YouTube, Gist, math, quote, and interactive demos.
 - Local media upload for images and videos. Uploaded files are published into the same article folder.

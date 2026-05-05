@@ -7,8 +7,8 @@ description: "Write, preview, and publish blog drafts."
 <section class="composer" data-composer-mode="editor">
   <header class="composer-header">
     <div>
-      <p class="composer-kicker">Composer</p>
-      <h1>Write a new article</h1>
+      <p class="composer-kicker">Draft</p>
+      <h1>New story</h1>
     </div>
     <div class="composer-actions">
       <button class="button secondary-button" type="button" data-copy-markdown>Copy Markdown</button>
@@ -21,16 +21,8 @@ description: "Write, preview, and publish blog drafts."
     <aside class="composer-panel">
       <h2>Article</h2>
       <label>
-        <span>Title</span>
-        <input type="text" data-field="title" placeholder="My article title">
-      </label>
-      <label>
         <span>Slug</span>
         <input type="text" data-field="slug" placeholder="my-article-title">
-      </label>
-      <label>
-        <span>Description</span>
-        <textarea data-field="description" rows="4" placeholder="Short summary for home, archive, and search."></textarea>
       </label>
       <label>
         <span>Date</span>
@@ -87,35 +79,27 @@ description: "Write, preview, and publish blog drafts."
     </aside>
 
     <section class="editor-pane">
+      <div class="story-head">
+        <input class="story-title-input" type="text" data-field="title" placeholder="Article title">
+        <textarea class="story-description-input" data-field="description" rows="2" placeholder="Short subtitle / summary for cards, search, and archive"></textarea>
+      </div>
       <div class="editor-toolbar" aria-label="Editor tools">
         <button type="button" data-insert="h2">H2</button>
         <button type="button" data-insert="code">Code</button>
         <button type="button" data-insert="image">Image</button>
+        <button type="button" data-insert="video">Video</button>
         <button type="button" data-insert="youtube">YouTube</button>
         <button type="button" data-insert="gist">Gist</button>
         <button type="button" data-insert="math">Math</button>
         <button type="button" data-insert="quote">Quote</button>
         <button type="button" data-insert="demo">Demo</button>
+        <button type="button" data-insert="table">Table</button>
+        <button type="button" data-insert="callout">Callout</button>
       </div>
       <div class="editor-wrap">
-        <textarea data-editor spellcheck="true" placeholder="Start writing. Type / on a new line for blocks."></textarea>
+        <textarea data-editor spellcheck="true" placeholder="Start writing...&#10;&#10;Type / on a new line for code, images, video, YouTube, Gist, math, tables, callouts, and demos."></textarea>
         <div class="slash-menu" data-slash-menu hidden></div>
       </div>
-    </section>
-
-    <section class="preview-pane" aria-label="Live preview">
-      <div class="preview-bar">
-        <span>Live Preview</span>
-        <span data-save-state>Draft saved locally</span>
-      </div>
-      <article class="preview-article">
-        <header class="preview-hero">
-          <p class="eyebrow" data-preview-meta></p>
-          <h1 data-preview-title>Untitled article</h1>
-          <p data-preview-description></p>
-        </header>
-        <div class="article-content" data-preview-content></div>
-      </article>
     </section>
   </div>
 </section>

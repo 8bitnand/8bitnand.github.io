@@ -196,7 +196,9 @@ function scheduleSave() {
   window.clearTimeout(saveTimer);
   saveTimer = window.setTimeout(() => {
     saveDraft();
-    renderPreview();
+    if (composerRoot?.dataset.composerMode === "preview") {
+      renderPreview();
+    }
   }, 160);
 }
 
