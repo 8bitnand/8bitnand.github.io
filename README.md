@@ -59,10 +59,18 @@ You can write articles in two ways:
 
 ## Browser Composer
 
-Open:
+The composer is **local-only**. It is intentionally excluded from the production GitHub Pages build, so visitors cannot see `/compose/` on the public site.
+
+Run the local dev server:
+
+```bash
+npm run dev
+```
+
+Then open:
 
 ```text
-/compose/
+http://localhost:8080/compose/
 ```
 
 The composer gives you:

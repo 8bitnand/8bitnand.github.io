@@ -99,7 +99,15 @@ function hashnodeEmbedPlugin(mdLib) {
 }
 
 module.exports = function (eleventyConfig) {
+  const isProduction = process.env.ELEVENTY_ENV === "production";
+
   eleventyConfig.addPlugin(syntaxHighlight);
+
+  eleventyConfig.addGlobalData("isProduction", isProduction);
+
+  if (isProduction) {
+    eleventyConfig.ignores.add("src/compose/**");
+  }
 
   eleventyConfig.amendLibrary("md", (mdLib) => {
     mdLib.use(markdownItAnchor, {
