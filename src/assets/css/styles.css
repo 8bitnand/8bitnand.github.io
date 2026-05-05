@@ -1416,6 +1416,11 @@ video {
   margin-top: 18px;
 }
 
+.preview-route-article .article-hero {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
 @media (max-width: 920px) {
   .featured-card,
   .article-shell {
