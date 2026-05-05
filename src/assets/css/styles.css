@@ -1246,6 +1246,23 @@ video {
   padding: 10px 11px;
 }
 
+.block-upload {
+  display: grid;
+  gap: 6px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  padding: 10px;
+}
+
+.block-upload input {
+  border: 0;
+  padding: 0;
+}
+
 .block-shell .code-language-field input {
   width: 110px;
   min-height: 30px;

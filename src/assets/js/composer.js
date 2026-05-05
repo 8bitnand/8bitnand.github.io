@@ -216,6 +216,10 @@ function makeImageBlock(data = {}) {
   block.innerHTML = `
     <div class="block-shell">
       ${blockHeaderMarkup("Image")}
+      <label class="block-upload">
+        <span>Upload image</span>
+        <input type="file" data-block-asset accept="image/*">
+      </label>
       <input type="text" data-image-src placeholder="./image-01.png" value="${escapeHtml(data.src || "")}">
       <input type="text" data-image-alt placeholder="Image description" value="${escapeHtml(data.alt || "")}">
       <figure data-image-preview></figure>
@@ -233,6 +237,10 @@ function makeVideoBlock(data = {}) {
   block.innerHTML = `
     <div class="block-shell">
       ${blockHeaderMarkup("Video")}
+      <label class="block-upload">
+        <span>Upload video</span>
+        <input type="file" data-block-asset accept="video/mp4,video/webm">
+      </label>
       <input type="text" data-video-src placeholder="./demo.mp4" value="${escapeHtml(data.src || "")}">
       <input type="text" data-video-type placeholder="video/mp4" value="${escapeHtml(data.type || data.typeHint || "video/mp4")}">
       <figure data-video-preview></figure>
@@ -797,6 +805,37 @@ async function handleAssets(event) {
   saveDraft();
 }
 
+async function handleBlockAsset(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  const block = input.closest(".composer-block");
+  if (!file || !block) return;
+
+  const asset = await fileToAsset(file);
+  mediaAssets = [...mediaAssets, asset];
+  block.dataset.previewSrc = asset.dataUrl;
+
+  if (block.dataset.blockType === "image") {
+    const src = block.querySelector("[data-image-src]");
+    const alt = block.querySelector("[data-image-alt]");
+    if (src) src.value = `./${asset.name}`;
+    if (alt && !alt.value.trim()) alt.value = asset.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+    updateImagePreview(block);
+  }
+
+  if (block.dataset.blockType === "video") {
+    const src = block.querySelector("[data-video-src]");
+    const type = block.querySelector("[data-video-type]");
+    if (src) src.value = `./${asset.name}`;
+    if (type) type.value = asset.type || "video/mp4";
+    updateVideoPreview(block);
+  }
+
+  input.value = "";
+  renderAssets();
+  saveDraft();
+}
+
 async function githubRequest(path, options = {}) {
   if (!canPublish) throw new Error("Publishing is disabled on the public site. Use preview or copy Markdown.");
 
@@ -972,6 +1011,11 @@ function bindEditor() {
   });
   editor.addEventListener("input", handleBlockInput);
   editor.addEventListener("keydown", handleBlockKeydown);
+  editor.addEventListener("change", (event) => {
+    if (event.target.matches("[data-block-asset]")) {
+      handleBlockAsset(event);
+    }
+  });
 
   $("[data-slash-menu]")?.addEventListener("click", (event) => {
     const button = event.target.closest("[data-slash-block]");
