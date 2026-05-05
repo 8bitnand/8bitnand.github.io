@@ -821,6 +821,12 @@ video {
   gap: 28px;
   align-items: start;
   padding-top: 24px;
+  transition: grid-template-columns 180ms ease, gap 180ms ease;
+}
+
+.composer[data-settings-open="false"] .composer-layout {
+  grid-template-columns: minmax(0, 1fr) 52px;
+  gap: 14px;
 }
 
 .composer-panel,
@@ -837,6 +843,12 @@ video {
   max-height: calc(100vh - 104px);
   overflow: auto;
   padding: 16px;
+  transition: padding 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.composer[data-settings-open="false"] .composer-panel {
+  overflow: visible;
+  padding: 0;
 }
 
 .editor-pane {
@@ -897,6 +909,23 @@ video {
   font-size: 0.92rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.composer[data-settings-open="false"] .composer-settings-disclosure {
+  display: grid;
+  min-height: 188px;
+  place-items: center;
+}
+
+.composer[data-settings-open="false"] .composer-settings-disclosure > summary {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  list-style-position: outside;
+  padding: 14px 8px;
+  text-align: center;
+  writing-mode: vertical-rl;
 }
 
 .composer-settings-body {
@@ -1292,7 +1321,18 @@ video {
     grid-template-columns: 1fr;
   }
 
+  .compact-grid,
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
   .composer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .composer[data-settings-open="false"] .composer-layout {
     grid-template-columns: 1fr;
   }
 
@@ -1300,6 +1340,22 @@ video {
     position: static;
     order: 1;
     max-height: none;
+  }
+
+  .composer[data-settings-open="false"] .composer-panel {
+    padding: 16px;
+  }
+
+  .composer[data-settings-open="false"] .composer-settings-disclosure {
+    min-height: 0;
+  }
+
+  .composer[data-settings-open="false"] .composer-settings-disclosure > summary {
+    display: block;
+    height: auto;
+    padding: 9px 10px;
+    text-align: left;
+    writing-mode: horizontal-tb;
   }
 
   .editor-pane {
@@ -1311,14 +1367,7 @@ video {
     min-height: 420px;
     max-height: none;
   }
-
-  .compact-grid,
-  .card-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 680px) {
+ 
   .site-header,
   .site-footer,
   .section-heading,

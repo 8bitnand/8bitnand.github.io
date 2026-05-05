@@ -905,6 +905,14 @@ function bindEditor() {
 }
 
 function bindComposer() {
+  const settingsPanel = $(".composer-settings-disclosure");
+  const syncSettingsPanel = () => {
+    composerRoot.dataset.settingsOpen = settingsPanel?.open ? "true" : "false";
+  };
+
+  syncSettingsPanel();
+  settingsPanel?.addEventListener("toggle", syncSettingsPanel);
+
   document.querySelectorAll("[data-field]").forEach((field) => {
     field.addEventListener("input", () => {
       if (field.dataset.field === "title" && !getField("slug")?.value) {
