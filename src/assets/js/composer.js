@@ -4,6 +4,7 @@ const composerRoot = document.querySelector("[data-composer-mode]");
 const publishRepository = "8bitnand/8bitnand.github.io";
 const publishBaseBranch = "main";
 const publishSiteUrl = "https://8bitnand.github.io";
+const softDeleteRoot = "archived-blog";
 
 const blockTemplates = {
   h2: { label: "Heading", hint: "Add a section heading" },
@@ -966,12 +967,132 @@ async function publishFile(owner, repo, path, content, message) {
   }
 }
 
-async function waitForDeployment(owner, repo, commitSha, slug) {
+function slugFromPostUrl(url = "") {
+  try {
+    const pathname = new URL(url, window.location.origin).pathname;
+    const parts = pathname.split("/").filter(Boolean);
+    if (parts[0] === "blog" && parts[1]) return parts[1];
+  } catch {
+    return "";
+  }
+  return "";
+}
+
+async function loadPublishedArticles() {
+  const select = $("[data-delete-slug]");
+  if (!select) return;
+
+  select.innerHTML = `<option value="">Loading articles...</option>`;
+  try {
+    const response = await fetch(`/search.json?ts=${Date.now()}`);
+    if (!response.ok) throw new Error(`Could not load articles: ${response.status}`);
+    const posts = await response.json();
+    const articles = posts
+      .map((post) => ({ title: post.title || "Untitled article", slug: slugFromPostUrl(post.url) }))
+      .filter((post) => post.slug)
+      .sort((a, b) => a.title.localeCompare(b.title));
+
+    if (!articles.length) {
+      select.innerHTML = `<option value="">No articles found</option>`;
+      return;
+    }
+
+    select.innerHTML = [
+      `<option value="">Choose article...</option>`,
+      ...articles.map((post) => `<option value="${escapeHtml(post.slug)}">${escapeHtml(post.title)} (${escapeHtml(post.slug)})</option>`)
+    ].join("");
+  } catch (error) {
+    select.innerHTML = `<option value="">Could not load articles</option>`;
+    setComposerStatus(escapeHtml(error.message), "error");
+  }
+}
+
+async function softDeleteArticle() {
+  const slug = $("[data-delete-slug]")?.value;
+  if (!slug) throw new Error("Choose an article to soft delete.");
+  if (!window.confirm(`Soft delete /blog/${slug}/? The files will move to ${softDeleteRoot}/${slug}/ and disappear from the site after deploy.`)) return;
+
+  const [owner, repo] = publishRepository.split("/");
+  setComposerStatus(`Preparing to move /blog/${escapeHtml(slug)}/...`, "pending");
+
+  const ref = await githubRequest(`/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(publishBaseBranch)}`);
+  const headSha = ref.object?.sha;
+  if (!headSha) throw new Error(`Could not read ${publishBaseBranch}.`);
+
+  const headCommit = await githubRequest(`/repos/${owner}/${repo}/git/commits/${headSha}`);
+  const baseTreeSha = headCommit.tree?.sha;
+  if (!baseTreeSha) throw new Error(`Could not read the ${publishBaseBranch} tree.`);
+
+  const fullTree = await githubRequest(`/repos/${owner}/${repo}/git/trees/${baseTreeSha}?recursive=1`);
+  const sourcePrefix = `src/blog/${slug}/`;
+  const archivePrefix = `${softDeleteRoot}/${slug}/`;
+  const files = (fullTree.tree || []).filter((item) => item.type === "blob" && item.path?.startsWith(sourcePrefix));
+
+  if (!files.length) throw new Error(`Could not find src/blog/${slug}/ in ${publishBaseBranch}.`);
+
+  setComposerStatus(`Moving ${files.length} file${files.length === 1 ? "" : "s"} to ${softDeleteRoot}/...`, "pending");
+  const tree = files.flatMap((file) => {
+    const relativePath = file.path.slice(sourcePrefix.length);
+    return [
+      {
+        path: `${archivePrefix}${relativePath}`,
+        mode: file.mode || "100644",
+        type: "blob",
+        sha: file.sha
+      },
+      {
+        path: file.path,
+        mode: file.mode || "100644",
+        type: "blob",
+        sha: null
+      }
+    ];
+  });
+
+  const newTree = await githubRequest(`/repos/${owner}/${repo}/git/trees`, {
+    method: "POST",
+    body: JSON.stringify({
+      base_tree: baseTreeSha,
+      tree
+    })
+  });
+
+  const newCommit = await githubRequest(`/repos/${owner}/${repo}/git/commits`, {
+    method: "POST",
+    body: JSON.stringify({
+      message: `Soft delete ${slug}`,
+      tree: newTree.sha,
+      parents: [headSha]
+    })
+  });
+
+  const updatedRef = await githubRequest(`/repos/${owner}/${repo}/git/refs/heads/${encodeURIComponent(publishBaseBranch)}`, {
+    method: "PATCH",
+    body: JSON.stringify({ sha: newCommit.sha })
+  });
+
+  const commitUrl = updatedRef.object?.url ? `https://github.com/${owner}/${repo}/commit/${newCommit.sha}` : "";
+  setComposerStatus(`${commitUrl ? `<a href="${escapeHtml(commitUrl)}" target="_blank" rel="noopener noreferrer">Soft deleted ${escapeHtml(slug)}</a>` : `Soft deleted ${escapeHtml(slug)}`}. Waiting for CI...`, "pending");
+  await waitForDeployment(owner, repo, newCommit.sha, slug, {
+    successMessage: "Soft deleted and deployed.",
+    doneLink: "The article is no longer public.",
+    waitingMessage: "Soft deleted on main. Waiting for GitHub Actions to start...",
+    fallbackMessage: "Soft deleted on main. Could not read GitHub Actions status, but CI should deploy shortly.",
+    timeoutMessage: "Soft deleted on main. CI is still running."
+  });
+  await loadPublishedArticles();
+}
+
+async function waitForDeployment(owner, repo, commitSha, slug, options = {}) {
   const targetUrl = articleUrl(slug);
-  const targetLink = `<a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener noreferrer">Open article</a>`;
+  const doneLink = options.doneLink ?? `<a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener noreferrer">Open article</a>`;
+  const successMessage = options.successMessage || "Published and deployed.";
+  const fallbackMessage = options.fallbackMessage || "Published to main. Could not read GitHub Actions status, but CI should deploy shortly.";
+  const timeoutMessage = options.timeoutMessage || "Published to main. CI is still running.";
+  const waitingMessage = options.waitingMessage || "Published to main. Waiting for GitHub Actions to start...";
 
   if (!commitSha) {
-    setComposerStatus(`Published to main. GitHub Pages will deploy shortly. ${targetLink}`, "success");
+    setComposerStatus(`Published to main. GitHub Pages will deploy shortly. ${doneLink}`, "success");
     return;
   }
 
@@ -981,28 +1102,28 @@ async function waitForDeployment(owner, repo, commitSha, slug) {
       const run = runs.workflow_runs?.[0];
 
       if (!run) {
-        setComposerStatus("Published to main. Waiting for GitHub Actions to start...", "pending");
+        setComposerStatus(waitingMessage, "pending");
       } else if (run.status === "queued") {
         setComposerStatus(`<a href="${escapeHtml(run.html_url)}" target="_blank" rel="noopener noreferrer">GitHub Actions queued</a>. Waiting for build...`, "pending");
       } else if (run.status === "in_progress") {
         setComposerStatus(`<a href="${escapeHtml(run.html_url)}" target="_blank" rel="noopener noreferrer">Building and deploying</a>...`, "pending");
       } else if (run.status === "completed") {
         if (run.conclusion === "success") {
-          setComposerStatus(`Published and deployed. ${targetLink}`, "success");
+          setComposerStatus(`${successMessage} ${doneLink}`, "success");
           return;
         }
         setComposerStatus(`GitHub Actions finished with ${run.conclusion || "an unknown result"}. <a href="${escapeHtml(run.html_url)}" target="_blank" rel="noopener noreferrer">Open workflow</a>`, "error");
         return;
       }
     } catch (error) {
-      setComposerStatus(`Published to main. Could not read GitHub Actions status, but CI should deploy shortly. ${targetLink}`, "success");
+      setComposerStatus(`${fallbackMessage} ${doneLink}`, "success");
       return;
     }
 
     await sleep(4000);
   }
 
-  setComposerStatus(`Published to main. CI is still running. ${targetLink}`, "pending");
+  setComposerStatus(`${timeoutMessage} ${doneLink}`, "pending");
 }
 
 async function publishDraft() {
@@ -1233,6 +1354,24 @@ function bindComposer() {
       publishButton.textContent = "Publish";
     }
   });
+
+  $("[data-refresh-articles]")?.addEventListener("click", () => {
+    loadPublishedArticles();
+  });
+
+  $("[data-soft-delete]")?.addEventListener("click", async () => {
+    const deleteButton = $("[data-soft-delete]");
+    try {
+      deleteButton.disabled = true;
+      deleteButton.textContent = "Moving...";
+      await softDeleteArticle();
+    } catch (error) {
+      setComposerStatus(escapeHtml(error.message), "error");
+    } finally {
+      deleteButton.disabled = false;
+      deleteButton.textContent = "Soft delete";
+    }
+  });
 }
 
 function initComposer() {
@@ -1244,6 +1383,7 @@ function initComposer() {
   renderAssets();
   bindEditor();
   bindComposer();
+  loadPublishedArticles();
 
   const ready = () => {
     renderPreview();

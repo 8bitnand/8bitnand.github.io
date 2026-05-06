@@ -87,6 +87,7 @@ The composer gives you:
 - Local media upload for images and videos. Uploaded files are kept in the browser for draft previews and uploaded with the article when publishing.
 - Copy Markdown button for moving the draft into an article folder manually.
 - Publish button that writes the article and uploaded media directly to `main` in `8bitnand/8bitnand.github.io`.
+- Soft delete button that moves an article from `src/blog/<slug>/` to `archived-blog/<slug>/` so it disappears from the site without losing the files.
 
 Supported slash blocks:
 
@@ -121,6 +122,15 @@ Metadata: Read-only
 If publishing says `Resource not accessible by personal access token`, the token can log in but cannot write to this repository. Regenerate it with access to `8bitnand/8bitnand.github.io` and `Contents: Read and write`. `Actions: Read-only` is only needed for showing the build/deploy progress after the article has been committed.
 
 The composer publishes through the GitHub Contents API. It creates or updates `src/blog/<slug>/index.md` on `main`, uploads media into the same folder, watches the GitHub Actions deployment, and then shows the final article link.
+
+To hide an article without deleting it permanently:
+
+1. Open Settings in the composer.
+2. Choose the article under `Manage articles`.
+3. Click `Soft delete`.
+4. Wait for GitHub Pages CI to deploy.
+
+Soft-deleted articles are moved to `archived-blog/<slug>/`, which is outside the Eleventy source folder. They will not appear on the home page, archive, search, RSS, or tag pages after the deploy finishes.
 
 You can still use `Copy Markdown` if you want to publish manually.
 
