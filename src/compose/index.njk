@@ -78,6 +78,21 @@ description: "Write and preview blog drafts."
           </label>
           <p class="composer-help">Publishing writes directly to <code>main</code>, watches GitHub Actions, then shows the article link. The token needs Contents read/write; Actions read helps show deploy status.</p>
           <div class="composer-status" data-composer-status aria-live="polite"></div>
+
+          <div class="composer-divider"></div>
+
+          <h2>Manage articles</h2>
+          <label>
+            <span>Published article</span>
+            <select data-delete-slug>
+              <option value="">Loading articles...</option>
+            </select>
+          </label>
+          <div class="composer-row-actions">
+            <button class="button secondary-button" type="button" data-refresh-articles>Refresh</button>
+            <button class="button danger-button" type="button" data-soft-delete>Soft delete</button>
+          </div>
+          <p class="composer-help">Soft delete moves the article folder to <code>archived-blog/</code>. It disappears from the site after GitHub Pages deploys, but the files stay in the repo.</p>
         </div>
       </details>
     </aside>

@@ -961,6 +961,7 @@ video {
 .composer-panel input[type="text"],
 .composer-panel input[type="password"],
 .composer-panel input[type="date"],
+.composer-panel select,
 .composer-panel textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -975,7 +976,25 @@ video {
   resize: vertical;
 }
 
+.composer-row-actions {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.composer-row-actions .button {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+}
+
+.danger-button {
+  border-color: color-mix(in srgb, #c33f38 45%, var(--line));
+  color: #a2332d;
+}
+
 .composer-panel input:focus,
+.composer-panel select:focus,
 .composer-panel textarea:focus,
 .story-title-input:focus,
 .story-description-input:focus,
