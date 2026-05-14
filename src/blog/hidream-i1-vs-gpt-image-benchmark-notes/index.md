@@ -6,7 +6,7 @@ date: 2026-05-13
 cover: "./cover.png"
 coverAlt: "Futuristic AI image generation lab with a benchmark gallery wall"
 hideCover: false
-draft: true
+draft: false
 tags:
   - "posts"
   - "ai"
@@ -27,7 +27,7 @@ Not a huge academic benchmark. Just a practical one. I picked five prompts from 
 
 <aside class="article-callout">
   <strong>Note</strong>
-  <p>This article is saved as a draft. I used the working official HiDream-I1-Dev Space for generation because the public HiDream-I1-Full Spaces I found were either OAuth/API-provider wrappers that errored, or cloned templates that were not actually running HiDream-I1-Full.</p>
+  <p>I used the working official HiDream-I1-Dev Space for generation because the public HiDream-I1-Full Spaces I found were either OAuth/API-provider wrappers that errored, or cloned templates that were not actually running HiDream-I1-Full.</p>
 </aside>
 
 ## Setup
