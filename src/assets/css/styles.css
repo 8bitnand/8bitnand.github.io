@@ -508,6 +508,17 @@ video {
   background: #ffffff;
 }
 
+.standalone-demo {
+  width: min(100vw - 32px, 980px);
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.standalone-demo iframe {
+  height: min(82vh, 760px);
+  min-height: 560px;
+}
+
 .interactive-demo figcaption {
   border-top: 1px solid var(--line);
   background: var(--surface-strong);
