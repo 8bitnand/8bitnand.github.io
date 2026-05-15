@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GPU Price History 2015–2026 · Cloud vs Hardware</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--bg:#ffffff;--bg2:#f5f5f5;--bg3:#ebebeb;--tx:#111;--tx2:#555;--tx3:#888;--bd:#e0e0e0;--green:#1a7a4a;--gbg:#e8f5ee;--amber:#8a6000;--abg:#fff8e1;}
+@media(prefers-color-scheme:dark){:root{--bg:#1a1a1a;--bg2:#242424;--bg3:#2e2e2e;--tx:#f0f0f0;--tx2:#aaa;--tx3:#666;--bd:#333;--green:#4caf80;--gbg:#1a3328;--amber:#d4a017;--abg:#2a2000;}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);padding:20px;max-width:900px;margin:0 auto;}
+h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+.sub{font-size:12px;color:var(--tx3);margin-bottom:16px;}
+.gpu-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.gb{cursor:pointer;padding:5px 13px;border:1px solid var(--bd);background:transparent;color:var(--tx2);border-radius:20px;font-size:12px;transition:all .12s;}
+.gb:hover{border-color:var(--tx2);}
+.gb.act{background:var(--tx);color:var(--bg);border-color:var(--tx);}
+.spec-strip{display:flex;flex-wrap:wrap;gap:5px;padding:8px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);margin-bottom:10px;}
+.sc{font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:4px;color:var(--tx2);font-family:'SF Mono',monospace;}
+.sk{color:var(--tx3);margin-right:3px;}
+.sv{color:var(--tx);font-weight:500;}
+.legends{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:8px;font-size:11px;color:var(--tx2);}
+.li{display:flex;align-items:center;gap:5px;}
+.ll{width:22px;height:3px;border-radius:2px;display:inline-block;}
+.lhw{width:22px;height:0;border-top:2.5px dashed #888;display:inline-block;}
+.tag{font-size:9px;padding:1px 5px;border-radius:3px;margin-left:3px;}
+.tv{background:var(--gbg);color:var(--green);}
+.te{background:var(--abg);color:var(--amber);}
+.chart-wrap{position:relative;width:100%;height:340px;margin-bottom:14px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px;}
+.ic{background:var(--bg2);border-radius:8px;padding:8px 12px;}
+.ic .lbl{font-size:11px;color:var(--tx2);}
+.ic .val{font-size:14px;font-weight:600;color:var(--tx);margin-top:2px;}
+.srcbox{font-size:10px;color:var(--tx3);padding:8px 12px;border:1px solid var(--bd);border-radius:6px;line-height:1.6;}
+.note{font-size:10px;color:var(--tx3);text-align:right;margin-top:6px;}
+</style>
+</head>
+<body>
+<h1>GPU Price History — Cloud Rental vs Hardware Market</h1>
+<p class="sub">10 NVIDIA generations · K80 through B200 · 2015–2026 · AWS / GCP / Azure on-demand (per GPU) + hardware market price</p>
+
+<div class="gpu-btns">
+  <button class="gb act" onclick="sg('T4')" id="btn-T4">T4 16G</button>
+  <button class="gb" onclick="sg('V100')" id="btn-V100">V100</button>
+  <button class="gb" onclick="sg('A10G')" id="btn-A10G">A10G ✦</button>
+  <button class="gb" onclick="sg('A100')" id="btn-A100">A100</button>
+  <button class="gb" onclick="sg('L4')" id="btn-L4">L4 ✦</button>
+  <button class="gb" onclick="sg('H100')" id="btn-H100">H100</button>
+  <button class="gb" onclick="sg('H200')" id="btn-H200">H200 ✦</button>
+  <button class="gb" onclick="sg('B200')" id="btn-B200">B200 ✦</button>
+  <button class="gb" onclick="sg('K80')" id="btn-K80">K80 (legacy)</button>
+  <button class="gb" onclick="sg('P100')" id="btn-P100">P100</button>
+</div>
+<p style="font-size:10px;color:var(--tx3);margin-bottom:10px;">✦ = newly added GPU generation</p>
+
+<div class="spec-strip" id="spec-strip"></div>
+
+<div class="legends">
+  <div class="li"><span class="ll" style="background:#FF9900;"></span>AWS<span class="tag tv" id="tag-a">verified</span></div>
+  <div class="li"><span class="ll" style="background:#4285F4;"></span>GCP<span class="tag tv" id="tag-g">verified</span></div>
+  <div class="li"><span class="ll" style="background:#0078D4;"></span>Azure<span class="tag tv" id="tag-z">verified</span></div>
+  <div class="li"><span class="lhw"></span>&nbsp;Hardware market price<span class="tag te">proxy</span></div>
+  <div class="li" style="margin-left:auto;font-size:10px;color:var(--tx3);">Left axis: $/hr per GPU &nbsp;·&nbsp; Right axis: hardware price $K</div>
+</div>
+
+<div class="chart-wrap">
+  <canvas id="gc"></canvas>
+</div>
+
+<div class="stats" id="stats"></div>
+<div class="srcbox" id="src"></div>
+<p class="note">All on-demand pricing. Spot/reserved can be 50–90% cheaper. Hyperscaler prices only — specialized clouds often 40–80% lower.</p>
+
+<script>
+const G={
+T4:{lbl:'NVIDIA T4 — Turing (TU104) — Sep 2018',
+specs:[['arch','Turing TU104'],['vram','16 GB GDDR6'],['fp32','8.1 TFLOPS'],['tensor fp16','65 TFLOPS'],['mem bw','300 GB/s'],['tdp','70 W'],['cuda','2,560 cores']],
+yr:[2018,2019,2020,2021,2022,2023,2024,2025,2026],
+aws:[null,.526,.526,.526,.526,.526,.526,.526,.526],
+gcp:[.35,.35,.35,.35,.35,.35,.35,.35,.35],
+az:[null,null,.526,.526,.526,.526,.526,.526,.526],
+hw:[2500,2200,3500,4000,2800,1500,1000,845,650],
+at:'v',gt:'v',zt:'v',
+st:[['GCP (cheapest)','$0.35/hr'],['AWS / Azure','$0.526/hr'],['HW now','~$650'],['HW peak','$4,000 (2021 shortage)']],
+src:'<b>AWS</b> g4dn.xlarge $0.526/hr, Nov 2019 launch — unchanged (Vantage.sh). <b>GCP</b> T4 $0.35/hr since late-2018 GA, never changed (cloud.google.com/compute/gpus-pricing). <b>Azure</b> NC4as T4 v3 $0.526/hr since 2020 (Vantage.sh). <b>HW proxy:</b> eBay sold listings via GPU Poet tracker — 2020–21 spike reflects chip shortage + AI demand.'
+},
+V100:{lbl:'NVIDIA V100 — Volta (GV100) — Jun 2017',
+specs:[['arch','Volta GV100'],['vram','16 GB HBM2'],['fp32','14.0 TFLOPS'],['tensor fp16','112 TFLOPS'],['mem bw','900 GB/s'],['tdp','300 W'],['cuda','5,120 cores']],
+yr:[2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
+aws:[3.06,3.06,3.06,3.06,3.06,3.06,3.06,3.06,3.06,3.06],
+gcp:[null,2.48,2.48,2.48,2.48,2.48,2.48,2.48,2.48,2.48],
+az:[null,3.06,3.06,3.06,3.06,3.06,3.06,3.06,3.06,3.06],
+hw:[12000,10000,8500,7500,10000,9000,5500,3500,2000,1500],
+at:'v',gt:'v',zt:'v',
+st:[['AWS / Azure','$3.06/hr — UNCHANGED ~7 yrs'],['GCP','$2.48/hr'],['HW now','~$1,500'],['HW peak','$12,000 (2017)']],
+src:'<b>AWS</b> p3.2xlarge $3.06/hr unchanged since Oct 2017 launch (aws.amazon.com/ec2/pricing). <b>GCP</b> $2.48/hr (cloud.google.com, oreateai.com 2026). <b>Azure</b> NC6s v3 $3.06/hr (Vantage.sh). <b>HW proxy:</b> enterprise resellers — 2021 spike = chip shortage and AI boom.'
+},
+A10G:{lbl:'NVIDIA A10G — Ampere (GA102) — 2021',
+specs:[['arch','Ampere GA102'],['vram','24 GB GDDR6'],['fp32','31.2 TFLOPS'],['tensor fp16','125 TFLOPS'],['mem bw','600 GB/s'],['tdp','150 W'],['cuda','6,912 cores']],
+yr:[2021,2022,2023,2024,2025,2026],
+aws:[1.006,1.006,1.006,1.006,1.006,1.006],
+gcp:[null,null,null,null,null,null],
+az:[null,1.11,1.11,1.11,1.11,1.11],
+hw:[3500,3000,2000,1500,1000,800],
+at:'v',gt:'v',zt:'e',
+st:[['AWS g5.xlarge','$1.006/hr (verified)'],['Azure NVads A10','~$1.11/hr (est.)'],['GCP','No A10G — uses L4 instead'],['HW now','~$800']],
+src:'<b>AWS</b> g5.xlarge $1.006/hr since 2021 launch (wring.co, TRG Datacenters, Vantage.sh). <b>GCP</b> skipped A10G and went directly to L4 (Ada Lovelace). <b>Azure</b> NVads A10 v5 ~$1.11/hr estimated (no direct official confirmation). <b>HW proxy:</b> enterprise/secondary market.'
+},
+A100:{lbl:'NVIDIA A100 — Ampere (GA100) — May 2020',
+specs:[['arch','Ampere GA100'],['vram','40/80 GB HBM2e'],['fp32','19.5 TFLOPS'],['tensor bf16','312 TFLOPS'],['mem bw','2,000 GB/s'],['tdp','400 W'],['cuda','6,912 cores']],
+yr:[2020,2021,2022,2023,2024,2025,2026],
+aws:[4.10,4.10,4.10,4.10,4.10,3.50,3.00],
+gcp:[null,3.67,3.67,3.67,3.67,3.00,2.50],
+az:[null,3.67,3.67,3.67,3.67,3.00,2.50],
+hw:[15000,15000,18000,12000,8000,5000,3500],
+at:'v',gt:'v',zt:'v',
+st:[['AWS (p4d ÷ 8)','$4.10 → ~$3.00/hr (2026)'],['GCP / Azure','$3.67 → ~$2.50/hr (2026)'],['HW now','~$3,500'],['HW peak','$18,000 (2022 AI boom)']],
+src:'<b>AWS</b> p4d.24xlarge $32.77/hr ÷ 8 = $4.10/GPU, Nov 2020 launch (HPCwire, TechCrunch). Declined ~2025 as H100 supply normalized (cloudzero.com). <b>GCP</b> a2-highgpu-1g $3.67/hr (cloud.google.com). <b>Azure</b> NC A100 v4 $3.67/hr (azure.microsoft.com). <b>HW:</b> peaked $18K in 2022 AI demand; now declining sharply.'
+},
+L4:{lbl:'NVIDIA L4 — Ada Lovelace (AD104) — 2023',
+specs:[['arch','Ada Lovelace AD104'],['vram','24 GB GDDR6'],['fp32','30.3 TFLOPS'],['fp8 tensor','485 TOPS'],['mem bw','300 GB/s'],['tdp','72 W'],['cuda','7,424 cores']],
+yr:[2023,2024,2025,2026],
+aws:[null,.805,.805,.805],
+gcp:[.71,.71,.71,.71],
+az:[null,null,null,null],
+hw:[2000,1500,1200,1000],
+at:'v',gt:'e',zt:'v',
+st:[['GCP G2 instances','~$0.71/hr (GPU portion est.)'],['AWS g6.xlarge','$0.805/hr'],['Azure','No standard L4 offering'],['HW now','~$1,000']],
+src:'<b>AWS</b> g6.xlarge $0.805/hr launched 2024 (wring.co). <b>GCP</b> G2 machine types (g2-standard-*) include L4; GPU portion estimated ~$0.71/hr from G2 pricing (cloud.google.com — GPU not separately itemized). <b>Azure</b> does not list L4 in standard compute catalog. <b>HW proxy:</b> enterprise pricing.'
+},
+H100:{lbl:'NVIDIA H100 — Hopper (GH100) — Sep 2022',
+specs:[['arch','Hopper GH100'],['vram','80 GB HBM3'],['fp32','67 TFLOPS'],['tensor bf16','989 TFLOPS'],['mem bw','3,350 GB/s'],['tdp','700 W'],['cuda','16,896 cores']],
+yr:[2022,2023,2024,2025,2026],
+aws:[null,12.29,12.29,6.88,6.88],
+gcp:[null,11.06,11.06,6.50,6.50],
+az:[null,12.29,12.29,6.98,6.98],
+hw:[37000,35000,30000,25000,20000],
+at:'v',gt:'v',zt:'v',
+st:[['2023–24 prices','AWS/Azure $12.29 · GCP $11.06/hr'],['⚡ AWS Jun 2025 cut','−44% → $6.88/hr per GPU'],['Azure 2025–26','~$6.98/hr (single-GPU NC H100)'],['HW now','~$20,000']],
+src:'<b>AWS</b> p5.48xlarge $98.32/hr÷8=$12.29/GPU at Nov 2023 launch (Vantage.sh, TechCrunch). AWS cut H100 44% June 2025 → $6.88/GPU — "most aggressive GPU discount in cloud history" (cloudzero.com). <b>GCP</b> a3-highgpu-8g $88.49÷8=$11.06 → ~$6.50 (deploybase.ai). <b>Azure</b> ND96isr→NC H100 v5 single-GPU now ~$6.98/hr (cloudzero.com Mar 2026). <b>HW:</b> $37K peak 2022.'
+},
+H200:{lbl:'NVIDIA H200 — Hopper (GH100) — Q4 2024',
+specs:[['arch','Hopper GH100 (enhanced)'],['vram','141 GB HBM3e'],['fp32','67 TFLOPS'],['tensor bf16','989 TFLOPS'],['mem bw','4,800 GB/s'],['tdp','700 W'],['vs H100','+76% VRAM · +43% BW']],
+yr:[2024,2025,2026],
+aws:[10.30,10.30,9.50],
+gcp:[10.30,10.30,9.50],
+az:[10.30,10.30,9.50],
+hw:[35000,32000,28000],
+at:'e',gt:'e',zt:'e',
+st:[['All hyperscalers (est.)','~$10.30/GPU (8-GPU nodes ~$82–85/hr)'],['2026 direction','Declining as B200 supply grows'],['HW now','~$28,000–$35,000'],['Same chip as H100','GH100 die · 76% more VRAM']],
+src:'<b>AWS, GCP, Azure, Oracle</b> bundle H200 in 8-GPU nodes at ~$80–85/hr → ~$10.30/GPU (jarvislabs.ai, cyfuture.cloud). All pricing <b>estimated</b> — hyperscalers do not publish standalone per-GPU H200 rates. <b>HW:</b> $30K–$40K/unit (jarvislabs.ai, intuitionlabs.ai). Prices expected to decline as Blackwell supply increases.'
+},
+B200:{lbl:'NVIDIA B200 — Blackwell (GB202) — 2025',
+specs:[['arch','Blackwell GB202'],['vram','192 GB HBM3e'],['fp16 tensor','2,250 TFLOPS'],['fp8 tensor','4,500 TOPS'],['mem bw','8,000 GB/s'],['tdp','1,000 W'],['vs H100','~2× LLM throughput']],
+yr:[2025,2026],
+aws:[8.00,7.00],
+gcp:[null,null],
+az:[null,null],
+hw:[30000,28000],
+at:'e',gt:'e',zt:'e',
+st:[['AWS P6 instances (est.)','~$7–8/hr per GPU'],['Modal serverless','$6.25/hr (published rate)'],['GCP / Azure','Not in standard catalog 2026'],['HW now','~$28,000–$30,000']],
+src:'<b>Modal.com</b> B200 serverless $6.25/hr (modal.com/blog/nvidia-b200-pricing). <b>AWS P6</b> estimated $7–8/hr from modal.com breakeven analysis: "At $30k per card, breakeven against $6–8/hr cloud rates." GCP and Azure B200 not confirmed for standard availability 2026. <b>All pricing estimated.</b> HW: ~$30K/card (modal.com).'
+},
+K80:{lbl:'NVIDIA K80 — Kepler (GK210 ×2) — Nov 2014',
+specs:[['arch','Kepler GK210 (dual die)'],['vram','24 GB GDDR5'],['fp32','8.7 TFLOPS'],['tensor','None — pre-Tensor Core'],['mem bw','480 GB/s'],['tdp','300 W'],['cuda','4,992 cores (total)']],
+yr:[2015,2016,2017,2018,2019,2020,2021,2022],
+aws:[null,.90,.90,.90,.53,.53,.53,null],
+gcp:[null,.70,.45,.45,.45,.45,null,null],
+az:[null,.90,.90,.90,.90,.90,.90,.90],
+hw:[5500,4500,3500,2500,1500,700,500,300],
+at:'v',gt:'v',zt:'v',
+st:[['GCP Nov 2017 cut','$0.70 → $0.45/hr (−36% official)'],['AWS','$0.90 → $0.53/hr (~2019)'],['Azure NC6','$0.90/hr — never changed'],['Retired','GCP 2021 · AWS 2022']],
+src:'<b>GCP</b> official cut Nov 2017: $0.70→$0.45/hr (NVIDIA developer blog, TechCrunch — most documented early cloud GPU price cut). <b>AWS</b> p2.xlarge $0.90/hr at 2016 launch, reduced to ~$0.53 ~2019 (aws-pricing.com, TRG Datacenters). <b>Azure</b> NC6 $0.90/hr — stable throughout operation (Vantage.sh, Holori). <b>HW proxy:</b> eBay/enterprise resellers.'
+},
+P100:{lbl:'NVIDIA P100 — Pascal (GP100) — Apr 2016',
+specs:[['arch','Pascal GP100'],['vram','16 GB HBM2'],['fp32','9.3 TFLOPS'],['fp16','18.7 TFLOPS'],['mem bw','732 GB/s'],['tdp','250 W'],['note','No Tensor Cores']],
+yr:[2016,2017,2018,2019,2020,2021,2022,2023],
+aws:[null,null,null,null,null,null,null,null],
+gcp:[2.48,1.46,1.46,1.46,1.46,1.46,1.60,null],
+az:[null,2.07,2.07,2.07,2.07,2.07,null,null],
+hw:[9500,8000,7000,5500,4000,5500,3500,2000],
+at:'v',gt:'v',zt:'e',
+st:[['GCP','$2.48/hr → $1.46/hr (Nov 2017 cut)'],['Azure NCv2','~$2.07/hr (estimated)'],['AWS','SKIPPED — went K80 → V100'],['HW peak','$9,500 (2016 launch)']],
+src:'<b>GCP</b> P100 $2.48/hr at 2016 launch → $1.46/hr Nov 2017 official cut (NVIDIA developer blog, TechCrunch 2017 — best-documented cloud GPU price reduction). <b>Azure</b> NCv2 P100 ~$2.07/hr estimated — no direct official confirmation found. <b>AWS</b> went directly from K80 (P2, 2016) to V100 (P3, 2017), never offering P100 instances.'
+}
+};
+
+const isDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+const gc=isDark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)';
+const tc=isDark?'#888':'#666';
+const hwc=isDark?'#bbb':'#777';
+let ch=null,cur='T4';
+
+function rSpecs(id){
+  document.getElementById('spec-strip').innerHTML=G[id].specs.map(([k,v])=>`<span class="sc"><span class="sk">${k}</span><span class="sv">${v}</span></span>`).join('');
+}
+function rMeta(id){
+  const d=G[id];
+  const tags={a:[d.at,'tag-a'],g:[d.gt,'tag-g'],z:[d.zt,'tag-z']};
+  Object.entries(tags).forEach(([,[ t,elId]])=>{
+    const el=document.getElementById(elId);
+    el.className='tag '+(t==='v'?'tv':'te');
+    el.textContent=t==='v'?'verified':'estimated';
+  });
+  document.getElementById('stats').innerHTML=d.st.map(([l,v])=>`<div class="ic"><div class="lbl">${l}</div><div class="val">${v}</div></div>`).join('');
+  document.getElementById('src').innerHTML='<strong>Sources & methodology:</strong> '+d.src;
+}
+function rChart(id){
+  const d=G[id];
+  const hwK=d.hw.map(v=>v?+(v/1000).toFixed(1):null);
+  const ds=[];
+  if(d.aws.some(v=>v!==null)) ds.push({label:'AWS',data:d.aws,borderColor:'#FF9900',backgroundColor:'#FF990012',borderWidth:2.5,pointRadius:4,pointHoverRadius:7,spanGaps:false,tension:.25,yAxisID:'y'});
+  if(d.gcp.some(v=>v!==null)) ds.push({label:'GCP',data:d.gcp,borderColor:'#4285F4',backgroundColor:'#4285F412',borderWidth:2.5,pointRadius:4,pointHoverRadius:7,spanGaps:false,tension:.25,yAxisID:'y'});
+  if(d.az.some(v=>v!==null)) ds.push({label:'Azure',data:d.az,borderColor:'#0078D4',backgroundColor:'#0078D412',borderWidth:2.5,pointRadius:4,pointHoverRadius:7,spanGaps:false,tension:.25,yAxisID:'y'});
+  ds.push({label:'Market hw',data:hwK,borderColor:hwc,backgroundColor:'transparent',borderWidth:2,borderDash:[6,4],pointRadius:4,pointHoverRadius:7,spanGaps:false,tension:.25,yAxisID:'y1'});
+  if(ch){ch.destroy();}
+  ch=new Chart(document.getElementById('gc'),{
+    type:'line',
+    data:{labels:d.yr.map(String),datasets:ds},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          mode:'index',intersect:false,backgroundColor:isDark?'#333':'#fff',titleColor:isDark?'#ddd':'#333',bodyColor:isDark?'#bbb':'#555',borderColor:isDark?'#555':'#ddd',borderWidth:1,
+          callbacks:{label:c=>{const v=c.raw;if(v===null||v===undefined)return null;return c.dataset.yAxisID==='y1'?` Hardware: $${(v*1000).toLocaleString()}`:` ${c.dataset.label}: $${v}/hr`;}}
+        }
+      },
+      scales:{
+        x:{grid:{color:gc},ticks:{color:tc,font:{size:11}}},
+        y:{position:'left',grid:{color:gc},beginAtZero:true,ticks:{color:tc,font:{size:11},callback:v=>'$'+v+'/hr'},title:{display:true,text:'Cloud on-demand ($/hr per GPU)',color:tc,font:{size:10}}},
+        y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:hwc,font:{size:11},callback:v=>'$'+v+'K'},title:{display:true,text:'Hardware market price',color:hwc,font:{size:10}}}
+      }
+    }
+  });
+}
+function sg(id){
+  if(cur===id)return;
+  document.getElementById('btn-'+cur).classList.remove('act');
+  cur=id;
+  document.getElementById('btn-'+id).classList.add('act');
+  rChart(id);rSpecs(id);rMeta(id);
+}
+rChart('T4');rSpecs('T4');rMeta('T4');
+</script>
+</body>
+</html>

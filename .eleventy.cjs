@@ -114,6 +114,7 @@ module.exports = function (eleventyConfig) {
   });
 
   eleventyConfig.addPassthroughCopy({ "src/assets": "assets" });
+  eleventyConfig.addPassthroughCopy({ "src/standalone": "." });
   eleventyConfig.addPassthroughCopy("src/blog/**/*.{jpg,jpeg,png,gif,webp,avif,svg,mp4,webm}");
 
   eleventyConfig.addCollection("posts", (collectionApi) => {
