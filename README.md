@@ -83,6 +83,7 @@ The composer gives you:
 - A separate preview page at `/compose/preview/` when you want to inspect the rendered article.
 - Slash commands. Type `/` in a blank paragraph to insert supported blocks.
 - Toolbar buttons for headings, code, image, video, YouTube, Gist, math, quote, interactive demos, tables, and callouts.
+- HTML embed block for uploading or pasting a complete standalone HTML file. The composer publishes it under `src/standalone/<article-slug>/<html-slug>/index.html` and embeds it back into the article with an iframe.
 - Rendered editing blocks for the main article features. Markdown is generated in the background for copy and publish.
 - Local media upload for images and videos. Uploaded files are kept in the browser for draft previews and uploaded with the article when publishing.
 - Copy Markdown button for moving the draft into an article folder manually.
@@ -98,6 +99,7 @@ Supported slash blocks:
 /video
 /youtube
 /gist
+/html
 /math
 /quote
 /demo
@@ -122,6 +124,13 @@ Metadata: Read-only
 If publishing says `Resource not accessible by personal access token`, the token can log in but cannot write to this repository. Regenerate it with access to `8bitnand/8bitnand.github.io` and `Contents: Read and write`. `Actions: Read-only` is only needed for showing the build/deploy progress after the article has been committed.
 
 The composer publishes through the GitHub Contents API. It creates or updates `src/blog/<slug>/index.md` on `main`, uploads media into the same folder, watches the GitHub Actions deployment, and then shows the final article link.
+
+For custom interactive HTML:
+
+1. Add an `HTML` block from the toolbar or type `/html`.
+2. Upload a `.html` file or paste the full HTML document.
+3. Set the embed slug. For example, `gpu-price-history` publishes to `/<article-slug>/gpu-price-history/`.
+4. Publish the article. The standalone HTML is uploaded first, then the article iframe points to it.
 
 To hide an article without deleting it permanently:
 

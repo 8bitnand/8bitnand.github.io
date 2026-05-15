@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">GPU Price History dashboard cover</title>
+  <desc id="desc">Abstract chart cover showing cloud GPU rental prices and hardware market prices.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#101820"/>
+      <stop offset="0.55" stop-color="#152235"/>
+      <stop offset="1" stop-color="#0b1118"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" x2="1">
+      <stop offset="0" stop-color="#f7f3ea" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#e9eef4" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <path d="M0 520 C180 470 260 570 420 515 C565 466 660 380 820 422 C1010 472 1070 320 1200 352 L1200 675 L0 675 Z" fill="#20344a" opacity="0.58"/>
+  <g opacity="0.16" stroke="#ffffff">
+    <path d="M120 110 H1080"/>
+    <path d="M120 210 H1080"/>
+    <path d="M120 310 H1080"/>
+    <path d="M120 410 H1080"/>
+    <path d="M120 510 H1080"/>
+    <path d="M220 80 V555"/>
+    <path d="M420 80 V555"/>
+    <path d="M620 80 V555"/>
+    <path d="M820 80 V555"/>
+    <path d="M1020 80 V555"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="112" y="92" width="976" height="492" rx="22" fill="url(#panel)"/>
+    <rect x="150" y="140" width="210" height="36" rx="18" fill="#111111"/>
+    <rect x="378" y="140" width="92" height="36" rx="18" fill="#e8ecef"/>
+    <rect x="486" y="140" width="92" height="36" rx="18" fill="#e8ecef"/>
+    <rect x="594" y="140" width="110" height="36" rx="18" fill="#e8ecef"/>
+    <text x="178" y="164" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">H100 selected</text>
+    <text x="408" y="164" fill="#4c5a67" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700">A100</text>
+    <text x="518" y="164" fill="#4c5a67" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700">L4</text>
+    <text x="626" y="164" fill="#4c5a67" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700">B200</text>
+    <g transform="translate(170 220)">
+      <path d="M0 250 C80 210 126 166 188 178 C246 190 280 112 342 122 C420 134 470 72 548 94 C618 114 680 62 768 40" fill="none" stroke="#ff9900" stroke-width="7" stroke-linecap="round"/>
+      <path d="M0 280 C88 256 156 230 226 238 C306 248 362 184 438 192 C520 202 570 142 646 150 C706 156 742 118 768 108" fill="none" stroke="#4285f4" stroke-width="7" stroke-linecap="round"/>
+      <path d="M0 210 C72 206 132 198 194 204 C270 212 324 170 392 174 C480 180 528 132 596 136 C670 140 718 94 768 84" fill="none" stroke="#0078d4" stroke-width="7" stroke-linecap="round"/>
+      <path d="M0 90 C95 88 170 104 242 86 C330 64 405 88 492 58 C592 24 676 54 768 22" fill="none" stroke="#777777" stroke-width="6" stroke-linecap="round" stroke-dasharray="18 15"/>
+      <g fill="#111111" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">
+        <text x="0" y="322">2015</text>
+        <text x="238" y="322">2019</text>
+        <text x="488" y="322">2023</text>
+        <text x="720" y="322">2026</text>
+      </g>
+    </g>
+  </g>
+  <text x="112" y="638" fill="#f7f3ea" font-family="Inter, Arial, sans-serif" font-size="45" font-weight="800">GPU Price History</text>
+  <text x="112" y="666" fill="#9fb1c4" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600">Cloud rental vs hardware market prices</text>
+</svg>
