@@ -13,6 +13,7 @@ const blockTemplates = {
   video: { label: "Local video", hint: "MP4/WebM file next to the article" },
   youtube: { label: "YouTube", hint: "Embedded YouTube video" },
   gist: { label: "GitHub Gist", hint: "Visible code embed" },
+  html: { label: "HTML embed", hint: "Paste or upload standalone HTML" },
   math: { label: "Math", hint: "MathJax block equation" },
   quote: { label: "Quote", hint: "Formatted pull quote" },
   demo: { label: "Interactive demo", hint: "Iframe demo with caption" },
@@ -59,6 +60,10 @@ function slugify(value = "") {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 90);
+}
+
+function uniqueHtmlSlug() {
+  return `html-${Date.now().toString(36)}`;
 }
 
 function today() {
@@ -322,6 +327,34 @@ function makeEmbedBlock(type, data = {}) {
   return block;
 }
 
+function makeHtmlBlock(data = {}) {
+  const block = document.createElement("div");
+  block.className = "composer-block composer-html-block";
+  block.dataset.blockType = "html";
+  const htmlSlug = slugify(data.slug || "") || uniqueHtmlSlug();
+  block.innerHTML = `
+    <div class="block-shell">
+      ${blockHeaderMarkup("HTML embed")}
+      <label class="block-upload">
+        <span>Upload HTML file</span>
+        <input type="file" data-html-file accept=".html,.htm,text/html">
+      </label>
+      <label>
+        <span>Embed slug</span>
+        <input type="text" data-html-slug placeholder="gpu-price-history" value="${escapeHtml(htmlSlug)}">
+      </label>
+      <label>
+        <span>Caption</span>
+        <input type="text" data-html-caption placeholder="Open the interactive HTML in a full page" value="${escapeHtml(data.caption || "")}">
+      </label>
+      <textarea data-html-input spellcheck="false" placeholder="Paste a full HTML document here...">${escapeHtml(data.html || "")}</textarea>
+      <div data-html-preview></div>
+    </div>
+  `;
+  updateHtmlPreview(block);
+  return block;
+}
+
 function makeMathBlock(data = {}) {
   const block = document.createElement("div");
   block.className = "composer-block composer-math-block";
@@ -378,6 +411,7 @@ function createBlock(type = "paragraph", data = {}) {
   if (type === "image") return makeImageBlock(data);
   if (type === "video") return makeVideoBlock(data);
   if (["youtube", "gist", "demo"].includes(type)) return makeEmbedBlock(type, data);
+  if (type === "html") return makeHtmlBlock(data);
   if (type === "math") return makeMathBlock(data);
   if (type === "table") return makeTableBlock(data);
   if (type === "callout") return makeCalloutBlock(data);
@@ -528,6 +562,12 @@ function serializeBlock(block) {
     previewSrc: block.dataset.previewSrc || ""
   };
   if (["youtube", "gist", "demo"].includes(type)) return { type, url: block.querySelector("[data-embed-url]")?.value.trim() || "" };
+  if (type === "html") return {
+    type,
+    slug: slugify(block.querySelector("[data-html-slug]")?.value.trim() || "") || uniqueHtmlSlug(),
+    caption: block.querySelector("[data-html-caption]")?.value.trim() || "",
+    html: block.querySelector("[data-html-input]")?.value || ""
+  };
   if (type === "math") return { type, expression: block.querySelector("[data-math-input]")?.value.trim() || "" };
   if (type === "table") return { type, rows: tableRows(block) };
   if (type === "callout") return {
@@ -542,6 +582,15 @@ function serializeBlocks() {
   return [...(blockEditor()?.querySelectorAll(".composer-block") || [])].map(serializeBlock);
 }
 
+function currentDraftSlug() {
+  return slugify(getField("slug")?.value || getField("title")?.value || "untitled-article");
+}
+
+function htmlPublicUrl(blockData, draftSlug = currentDraftSlug()) {
+  const htmlSlug = slugify(blockData.slug || "") || "html";
+  return `/${draftSlug}/${htmlSlug}/`;
+}
+
 function blockToMarkdown(block) {
   const data = serializeBlock(block);
   if (data.type === "paragraph") return data.text;
@@ -553,6 +602,12 @@ function blockToMarkdown(block) {
   if (data.type === "youtube" || data.type === "gist") return data.url ? `%[${data.url}]` : "";
   if (data.type === "demo") {
     return data.url ? `<figure class="interactive-demo">\n  <iframe src="${data.url}" title="Interactive demo" loading="lazy"></iframe>\n  <figcaption>\n    <a href="${data.url}" target="_blank" rel="noopener noreferrer">Open the interactive demo in a new tab</a>\n  </figcaption>\n</figure>` : "";
+  }
+  if (data.type === "html") {
+    if (!data.html.trim()) return "";
+    const url = htmlPublicUrl(data);
+    const caption = data.caption || "Open the interactive HTML in a full page";
+    return `<figure class="interactive-demo standalone-demo">\n  <iframe src="${url}" title="${escapeHtml(data.slug || "HTML embed")}" loading="lazy"></iframe>\n  <figcaption>\n    <a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(caption)}</a>\n  </figcaption>\n</figure>`;
   }
   if (data.type === "math") return data.expression ? `$$\n${data.expression}\n$$` : "";
   if (data.type === "table") {
@@ -783,6 +838,26 @@ function updateEmbedPreview(block) {
   }
 }
 
+function updateHtmlPreview(block) {
+  const html = block.querySelector("[data-html-input]")?.value || "";
+  const slug = slugify(block.querySelector("[data-html-slug]")?.value || "") || "html";
+  const preview = block.querySelector("[data-html-preview]");
+  if (!preview) return;
+
+  if (!html.trim()) {
+    preview.innerHTML = `<div class="block-empty-preview">Paste or upload a standalone HTML file.</div>`;
+    return;
+  }
+
+  const url = htmlPublicUrl({ slug });
+  preview.innerHTML = `
+    <figure class="interactive-demo html-preview">
+      <iframe title="${escapeHtml(slug)} preview" sandbox="allow-scripts allow-forms allow-popups allow-same-origin" srcdoc="${escapeHtml(html)}"></iframe>
+      <figcaption>Publishes to <code>${escapeHtml(url)}</code> and embeds that page here.</figcaption>
+    </figure>
+  `;
+}
+
 function updateMathPreview(block) {
   const expression = block.querySelector("[data-math-input]")?.value.trim() || "";
   const preview = block.querySelector("[data-math-preview]");
@@ -852,6 +927,15 @@ async function fileToAsset(file) {
   };
 }
 
+async function fileToText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
 async function handleAssets(event) {
   const files = [...(event.target.files || [])];
   const nextAssets = await Promise.all(files.map(fileToAsset));
@@ -888,6 +972,31 @@ async function handleBlockAsset(event) {
 
   input.value = "";
   renderAssets();
+  saveDraft();
+}
+
+async function handleHtmlFile(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  const block = input.closest(".composer-html-block");
+  if (!file || !block) return;
+
+  const html = await fileToText(file);
+  const htmlInput = block.querySelector("[data-html-input]");
+  const slugInput = block.querySelector("[data-html-slug]");
+  const captionInput = block.querySelector("[data-html-caption]");
+
+  if (htmlInput) htmlInput.value = html;
+  if (slugInput && (!slugInput.value.trim() || slugInput.value.startsWith("html-"))) {
+    slugInput.value = slugify(file.name.replace(/\.[^.]+$/, "")) || uniqueHtmlSlug();
+  }
+  if (captionInput && !captionInput.value.trim()) {
+    captionInput.value = "Open the interactive HTML in a full page";
+  }
+
+  input.value = "";
+  updateHtmlPreview(block);
+  syncHiddenMarkdown();
   saveDraft();
 }
 
@@ -1126,6 +1235,15 @@ async function waitForDeployment(owner, repo, commitSha, slug, options = {}) {
   setComposerStatus(`${timeoutMessage} ${doneLink}`, "pending");
 }
 
+function htmlEmbedsFromDraft(draft) {
+  return (draft.blocks || [])
+    .filter((block) => block.type === "html" && String(block.html || "").trim())
+    .map((block) => ({
+      slug: slugify(block.slug || "") || uniqueHtmlSlug(),
+      html: block.html
+    }));
+}
+
 async function publishDraft() {
   const draft = readForm();
   const [owner, repo] = publishRepository.split("/");
@@ -1137,12 +1255,21 @@ async function publishDraft() {
   setComposerStatus("Publishing article to main...", "pending");
 
   const articlePath = `src/blog/${draft.slug}/index.md`;
-  let latestResult = await publishFile(owner, repo, articlePath, base64Encode(buildFrontMatter(draft)), `Publish ${draft.title}`);
+  let latestResult = null;
+  const htmlEmbeds = htmlEmbedsFromDraft(draft);
+
+  for (const [index, embed] of htmlEmbeds.entries()) {
+    setComposerStatus(`Uploading HTML embed ${index + 1} of ${htmlEmbeds.length}...`, "pending");
+    latestResult = await publishFile(owner, repo, `src/standalone/${draft.slug}/${embed.slug}/index.html`, base64Encode(embed.html), `Publish HTML embed for ${draft.title}`);
+  }
 
   for (const [index, asset] of mediaAssets.entries()) {
     setComposerStatus(`Uploading media ${index + 1} of ${mediaAssets.length}...`, "pending");
     latestResult = await publishFile(owner, repo, `src/blog/${draft.slug}/${asset.name}`, asset.base64, `Publish media for ${draft.title}`);
   }
+
+  setComposerStatus("Publishing article to main...", "pending");
+  latestResult = await publishFile(owner, repo, articlePath, base64Encode(buildFrontMatter(draft)), `Publish ${draft.title}`);
 
   const commitSha = latestResult?.commit?.sha;
   const commitUrl = latestResult?.commit?.html_url;
@@ -1171,6 +1298,7 @@ function handleBlockInput(event) {
     updateVideoPreview(block);
   }
   if (event.target.matches("[data-embed-url]")) updateEmbedPreview(block);
+  if (event.target.matches("[data-html-input], [data-html-slug], [data-html-caption]")) updateHtmlPreview(block);
   if (event.target.matches("[data-math-input]")) updateMathPreview(block);
 
   scheduleSave();
@@ -1232,6 +1360,9 @@ function bindEditor() {
   editor.addEventListener("change", (event) => {
     if (event.target.matches("[data-block-asset]")) {
       handleBlockAsset(event);
+    }
+    if (event.target.matches("[data-html-file]")) {
+      handleHtmlFile(event);
     }
   });
 

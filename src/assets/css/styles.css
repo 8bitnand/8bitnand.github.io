@@ -1334,6 +1334,7 @@ video {
 }
 
 .composer-code-block textarea,
+.composer-html-block textarea,
 .composer-math-block textarea {
   font: 0.95rem/1.65 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
@@ -1343,8 +1344,17 @@ video {
   overflow: hidden;
 }
 
+.composer-html-block textarea {
+  min-height: 260px;
+}
+
+.html-preview iframe {
+  min-height: 360px;
+}
+
 .composer-media-block figure,
-.composer-embed-block figure {
+.composer-embed-block figure,
+.composer-html-block figure {
   margin: 0;
 }
 
