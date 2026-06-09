@@ -184,6 +184,61 @@ run_log.txt
 
 The important thing is that all five samples completed and were saved cleanly.
 
+## Extra listening references
+
+I also had a few older benchmark samples lying around from other TTS systems. These are useful as listening references, but they are **not** a clean apples-to-apples benchmark because they were not generated from the same five MisoTTS prompts above.
+
+Still, they help answer the real social-media question:
+
+> Does this local voice sound anywhere close to the cloud models people already know?
+
+### ElevenLabs v3 sample
+
+<audio controls preload="metadata" src="./compare_elevenlabs_v3_10s.wav"></audio>
+
+Transcript:
+
+> Okay, so like I finally beat level 42 of that game I said I'd quit like a month ago and then for the final big scary mega-boss, it's just... Ahhh Ahhh Ahhh Ahhh Ahhh Ahhh Ahhh Ahhh
+
+Notes:
+
+- source: older ElevenLabs v3 benchmark sample
+- duration: 10.00s
+- file: `compare_elevenlabs_v3_10s.wav`
+
+### OpenAI Alloy sample
+
+<audio controls preload="metadata" src="./compare_openai_alloy.wav"></audio>
+
+Transcript:
+
+> The sun rises in the east and sets in the west. This simple fact has been observed by humans for thousands of years.
+
+Notes:
+
+- source: older OpenAI TTS Alloy benchmark sample
+- duration: 6.96s
+- file: `compare_openai_alloy.wav`
+
+### Sesame CSM sample
+
+<audio controls preload="metadata" src="./compare_sesame_csm_10s.wav"></audio>
+
+Transcript:
+
+> Sounds like you have a real heart for other people. No one's ever accused me of that before. Oh no, now you're remain half. Yet.
+
+Notes:
+
+- source: older Sesame CSM benchmark sample
+- duration: 10.00s
+- file: `compare_sesame_csm_10s.wav`
+
+<aside class="article-callout">
+  <strong>Important</strong>
+  <p>The MisoTTS samples above are from this local MLX run. The ElevenLabs, OpenAI, and Sesame clips are previous benchmark artifacts. A fair ranking needs a follow-up run where every model speaks the exact same text.</p>
+</aside>
+
 ## What I would test next
 
 This first run answered the basic question: local MisoTTS generation works.
