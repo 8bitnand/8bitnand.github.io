@@ -115,7 +115,7 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addPassthroughCopy({ "src/assets": "assets" });
   eleventyConfig.addPassthroughCopy({ "src/standalone": "." });
-  eleventyConfig.addPassthroughCopy("src/blog/**/*.{jpg,jpeg,png,gif,webp,avif,svg,mp4,webm}");
+  eleventyConfig.addPassthroughCopy("src/blog/**/*.{jpg,jpeg,png,gif,webp,avif,svg,mp4,webm,wav,mp3,ogg}");
 
   eleventyConfig.addCollection("posts", (collectionApi) => {
     return collectionApi
