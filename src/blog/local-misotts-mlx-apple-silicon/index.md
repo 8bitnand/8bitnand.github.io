@@ -23,7 +23,7 @@ Longer answer: the local MLX path worked reliably, but it was not real-time.
 
 This is not a polished academic benchmark. It is the kind of test I actually care about as a builder: install it, run it, produce audio, measure how painful it is, and keep the artifacts.
 
-![](./cover.svg)
+![](./cover.png)
 
 ## What I tested
 
@@ -40,6 +40,16 @@ The goal was not to find the best possible voice. The goal was to stress a few c
 | `05_fast_product_update.wav` | faster product update voice |
 
 Each output was **6.48 seconds** long.
+
+## What MisoTTS is
+
+MisoTTS is an **8B text-to-speech model from Miso Labs**. The useful thing about it is that it is not only a text-to-audio model. It can condition on both **text** and **audio context**, which is why this test used short reference audio clips along with the target text.
+
+According to the [Miso Labs release post](https://www.misolabs.ai/blog/miso-tts-8b), the model uses a hierarchical RVQ transformer design: a **7.7B-parameter backbone** models the text/audio sequence and predicts the first audio codebook, while a **300M-parameter decoder** predicts the remaining codebooks across RVQ depth. The [Hugging Face model card](https://huggingface.co/MisoLabs/MisoTTS/blob/main/README.md) describes the released model as a Sesame-style CSM architecture with a Llama-style backbone, a smaller autoregressive audio decoder, **32 audio codebooks**, **2,051 audio vocabulary**, Mimi audio tokenizer, and a max sequence length of **2,048**.
+
+![](./misotts-architecture.svg)
+
+In simpler words: MisoTTS does not directly predict a waveform sample-by-sample. It predicts compact audio codes. Those codes are then decoded back into speech. The RVQ part matters because it lets the model represent a much wider space of speech sounds without using one enormous flat audio vocabulary.
 
 ## The local run
 
@@ -66,29 +76,94 @@ That means the run was stable, but slow. The fastest sample still took roughly *
   <p>Local MisoTTS on MLX generated 5/5 samples successfully. It was reliable, but not fast enough for real-time voice applications in this setup.</p>
 </aside>
 
+## The local infra
+
+This was the actual local setup:
+
+![](./local-infra.svg)
+
+The run used the local model under `tmp/misotts_mlx/model` and wrote outputs to:
+
+```txt
+artifacts/misotts_mlx_local/experiments_2026_06_08/
+```
+
+For each sample, the script passed:
+
+- target text,
+- reference text,
+- reference audio,
+- sampler temperature,
+- `top_k`,
+- `max_audio_length_ms=6500`,
+- `stream=False`,
+- `voice_match=False`.
+
+The model load happened once. Then each case generated one WAV file and appended a timing/memory line to `run_log.txt`.
+
 ## The audio samples
 
-Here are the actual outputs from the local run.
+Here are the actual outputs from the local run. I am including the exact text below each player so you can judge whether the generated voice matched the intended tone.
 
 ### Calm assistant
 
 <audio controls preload="metadata" src="./01_calm_assistant.wav"></audio>
 
+Generated text:
+
+> Here is the short version. The local model is stable, but the hosted Space still needs a separate reliability check.
+
+Reference style:
+
+> I just heard the news, and I honestly cannot stop smiling right now!
+
 ### Excited demo
 
 <audio controls preload="metadata" src="./02_excited_demo.wav"></audio>
+
+Generated text:
+
+> Wait, this sounds much better than I expected. The pacing is surprisingly natural.
+
+Reference style:
+
+> I just heard the news, and I honestly cannot stop smiling right now!
 
 ### Serious warning
 
 <audio controls preload="metadata" src="./03_serious_warning.wav"></audio>
 
+Generated text:
+
+> No, pause the rollout. If this fails in production, the recovery path is going to be painful.
+
+Reference style:
+
+> No, stop. I am serious now. That is absolutely not acceptable.
+
 ### Sad reflective
 
 <audio controls preload="metadata" src="./04_sad_reflective.wav"></audio>
 
+Generated text:
+
+> I thought the result would be cleaner by now, but this still gives us useful signal.
+
+Reference style:
+
+> I do not know what to say. I really thought things would be different.
+
 ### Fast product update
 
 <audio controls preload="metadata" src="./05_fast_product_update.wav"></audio>
+
+Generated text:
+
+> Quick update. I generated five local samples, logged the timings, and saved everything under artifacts.
+
+Reference style:
+
+> I just heard the news, and I honestly cannot stop smiling right now!
 
 ## The useful part: it actually produced files
 

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 640" role="img" aria-labelledby="title desc">
+  <title id="title">Local MisoTTS MLX run infrastructure</title>
+  <desc id="desc">Diagram showing local artifacts, prompt cases, MLX model, generation loop, run log, and WAV outputs.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="1400" height="640" rx="28" fill="#0f172a"/>
+  <text x="70" y="86" fill="#f8fafc" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="850">My local test setup</text>
+  <text x="72" y="128" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="24">Five scripted cases, prompt audio, MLX inference, WAV outputs, and a small timing log.</text>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="72" y="210" width="250" height="160" rx="24" fill="#eff6ff"/>
+    <text x="106" y="270" fill="#1e3a8a" font-size="28" font-weight="850">Input cases</text>
+    <text x="106" y="314" fill="#334155" font-size="22">text + ref_text</text>
+    <text x="106" y="350" fill="#334155" font-size="22">temp + top_k</text>
+
+    <rect x="72" y="420" width="250" height="120" rx="24" fill="#f5f3ff"/>
+    <text x="106" y="475" fill="#5b21b6" font-size="28" font-weight="850">Reference audio</text>
+    <text x="106" y="516" fill="#334155" font-size="22">prompt voice WAVs</text>
+
+    <line x1="334" y1="290" x2="458" y2="330" stroke="#cbd5e1" stroke-width="4" marker-end="url(#arrow)"/>
+    <line x1="334" y1="480" x2="458" y2="405" stroke="#cbd5e1" stroke-width="4" marker-end="url(#arrow)"/>
+
+    <rect x="468" y="238" width="310" height="250" rx="28" fill="#ecfeff"/>
+    <text x="512" y="302" fill="#155e75" font-size="30" font-weight="850">MisoTTS MLX</text>
+    <text x="512" y="348" fill="#334155" font-size="22">model: tmp/misotts_mlx/model</text>
+    <text x="512" y="386" fill="#334155" font-size="22">max_audio_length_ms=6500</text>
+    <text x="512" y="424" fill="#334155" font-size="22">stream=False</text>
+
+    <line x1="790" y1="363" x2="902" y2="363" stroke="#cbd5e1" stroke-width="4" marker-end="url(#arrow)"/>
+
+    <rect x="914" y="210" width="410" height="150" rx="24" fill="#f0fdf4"/>
+    <text x="958" y="270" fill="#047857" font-size="30" font-weight="850">5 WAV files</text>
+    <text x="958" y="314" fill="#334155" font-size="22">6.48s each, embedded in post</text>
+
+    <rect x="914" y="410" width="410" height="130" rx="24" fill="#fff7ed"/>
+    <text x="958" y="466" fill="#9a3412" font-size="30" font-weight="850">run_log.txt</text>
+    <text x="958" y="508" fill="#334155" font-size="22">load time, elapsed time, RTF, memory</text>
+
+    <line x1="1118" y1="367" x2="1118" y2="398" stroke="#cbd5e1" stroke-width="4" marker-end="url(#arrow)"/>
+  </g>
+</svg>
