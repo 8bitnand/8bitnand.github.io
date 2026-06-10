@@ -466,6 +466,78 @@ video {
   background: var(--surface-strong);
 }
 
+.article-content .audio-table-wrap {
+  margin: 28px 0;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.article-content .audio-comparison-table {
+  display: table;
+  width: 100%;
+  min-width: 980px;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: 0.92rem;
+}
+
+.article-content .audio-comparison-table th,
+.article-content .audio-comparison-table td {
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 12px;
+  vertical-align: top;
+}
+
+.article-content .audio-comparison-table th {
+  background: var(--surface-strong);
+  color: var(--ink);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.article-content .audio-comparison-table th:last-child,
+.article-content .audio-comparison-table td:last-child {
+  border-right: 0;
+}
+
+.article-content .audio-comparison-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.article-content .audio-comparison-table th:nth-child(1),
+.article-content .audio-comparison-table td:nth-child(1) {
+  width: 130px;
+  font-weight: 700;
+}
+
+.article-content .audio-comparison-table th:nth-child(2),
+.article-content .audio-comparison-table td:nth-child(2),
+.article-content .audio-comparison-table th:nth-child(5),
+.article-content .audio-comparison-table td:nth-child(5) {
+  width: 250px;
+}
+
+.article-content .audio-comparison-table th:nth-child(3),
+.article-content .audio-comparison-table td:nth-child(3),
+.article-content .audio-comparison-table th:nth-child(4),
+.article-content .audio-comparison-table td:nth-child(4) {
+  width: 175px;
+}
+
+.article-content .audio-comparison-table audio {
+  width: 160px;
+  max-width: 100%;
+  display: block;
+}
+
 .article-content mjx-container {
   overflow-x: auto;
   overflow-y: hidden;

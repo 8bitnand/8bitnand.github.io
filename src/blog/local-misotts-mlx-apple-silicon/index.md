@@ -107,7 +107,8 @@ Here are the actual outputs from the local run. The generated text column is the
 
 ### MisoTTS sample comparison table
 
-<table>
+<div class="audio-table-wrap">
+<table class="audio-comparison-table">
   <thead>
     <tr>
       <th>Sample</th>
@@ -155,6 +156,7 @@ Here are the actual outputs from the local run. The generated text column is the
     </tr>
   </tbody>
 </table>
+</div>
 
 Notes from the ASR spot-check: the excited demo was the cleanest prompt match; calm assistant and fast product update were partially recognizable but clipped by the short output cap; serious warning and sad reflective drifted badly from the requested generated text.
 
