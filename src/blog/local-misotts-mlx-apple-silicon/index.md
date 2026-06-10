@@ -167,14 +167,13 @@ This was the more useful workflow:
 
 That worked better than asking the model to generate the whole paragraph in one shot. Longer reference clips and full-paragraph generation were less stable in these local tests.
 
-The target was the same short paragraph beginning with: "Fable 5 is a serious frontier release..."
+The reference clips below are only voice prompts. The generated clips speak the same target paragraph beginning with: "Fable 5 is a serious frontier release..."
 
 <div class="audio-table-wrap">
 <table class="audio-comparison-table">
   <thead>
     <tr>
       <th>Voice</th>
-      <th>Reference text</th>
       <th>Reference audio</th>
       <th>Generated audio</th>
       <th>Generation notes</th>
@@ -183,21 +182,18 @@ The target was the same short paragraph beginning with: "Fable 5 is a serious fr
   <tbody>
     <tr>
       <td>HSBC announcer</td>
-      <td>Clean 8 second reference segment from the announcer sample.</td>
       <td><audio controls preload="metadata" src="./ref_hsbc_announcer_8s.wav"></audio></td>
       <td><audio controls preload="metadata" src="./clone_hsbc_fable_paragraph.wav"></audio></td>
       <td>19.84s output. This was the best voice-clone result from the follow-up run.</td>
     </tr>
     <tr>
       <td>Porsche ad read</td>
-      <td>Clean 8 second reference segment from the Porsche Macan sample.</td>
       <td><audio controls preload="metadata" src="./ref_tpx_porsche_8s.wav"></audio></td>
       <td><audio controls preload="metadata" src="./clone_tpx_porsche_fable_paragraph.wav"></audio></td>
       <td>22.80s output. Generated with the same sentence-by-sentence clone workflow.</td>
     </tr>
     <tr>
       <td>Alan Cross / Porter</td>
-      <td>Clean 8 second reference segment from the Porter sample.</td>
       <td><audio controls preload="metadata" src="./ref_tpx_alancross_8s.wav"></audio></td>
       <td><audio controls preload="metadata" src="./clone_tpx_alancross_fable_paragraph.wav"></audio></td>
       <td>18.00s output. Generated successfully, but still needs human listening judgment.</td>
