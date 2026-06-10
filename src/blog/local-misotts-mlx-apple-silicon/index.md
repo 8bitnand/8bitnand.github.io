@@ -113,7 +113,11 @@ Prompt sent:
 
 > Here is the short version. The local model is stable, but the hosted Space still needs a separate reliability check.
 
-Reference style:
+Reference style audio:
+
+<audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
+
+Reference transcript:
 
 > I just heard the news, and I honestly cannot stop smiling right now!
 
@@ -125,7 +129,11 @@ Prompt sent:
 
 > Wait, this sounds much better than I expected. The pacing is surprisingly natural.
 
-Reference style:
+Reference style audio:
+
+<audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
+
+Reference transcript:
 
 > I just heard the news, and I honestly cannot stop smiling right now!
 
@@ -141,7 +149,11 @@ Transcript check:
 
 > Automatic ASR did not match this prompt reliably. Treat this clip as a failed/drifted generation, not a clean reading of the line above.
 
-Reference style:
+Reference style audio:
+
+<audio controls preload="metadata" src="./ref_misolabs_voiceover_sample.wav"></audio>
+
+Reference transcript:
 
 > No, stop. I am serious now. That is absolutely not acceptable.
 
@@ -157,7 +169,11 @@ Transcript check:
 
 > Automatic ASR did not match this prompt reliably. Treat this clip as a failed/drifted generation, not a clean reading of the line above.
 
-Reference style:
+Reference style audio:
+
+<audio controls preload="metadata" src="./ref_misolabs_teacher_sample.wav"></audio>
+
+Reference transcript:
 
 > I do not know what to say. I really thought things would be different.
 
@@ -169,7 +185,11 @@ Prompt sent:
 
 > Quick update. I generated five local samples, logged the timings, and saved everything under artifacts.
 
-Reference style:
+Reference style audio:
+
+<audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
+
+Reference transcript:
 
 > I just heard the news, and I honestly cannot stop smiling right now!
 
