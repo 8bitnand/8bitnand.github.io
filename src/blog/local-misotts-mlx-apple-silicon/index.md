@@ -105,6 +105,8 @@ The model load happened once. Then each case generated one WAV file and appended
 
 Here are the actual outputs from the local run. The generated text column is the target prompt sent to the model, not a verified transcript of the generated audio. The reference text column is the `ref_text` argument used by the script, not a verified transcript of the reference audio.
 
+### MisoTTS sample comparison table
+
 <table>
   <thead>
     <tr>
@@ -113,7 +115,6 @@ Here are the actual outputs from the local run. The generated text column is the
       <th>Reference audio</th>
       <th>Generated audio</th>
       <th>Generated text</th>
-      <th>Check</th>
     </tr>
   </thead>
   <tbody>
@@ -123,7 +124,6 @@ Here are the actual outputs from the local run. The generated text column is the
       <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./01_calm_assistant.wav"></audio></td>
       <td>Here is the short version. The local model is stable, but the hosted Space still needs a separate reliability check.</td>
-      <td>Partially recognizable, clipped by the short output cap.</td>
     </tr>
     <tr>
       <td>Excited demo</td>
@@ -131,7 +131,6 @@ Here are the actual outputs from the local run. The generated text column is the
       <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./02_excited_demo.wav"></audio></td>
       <td>Wait, this sounds much better than I expected. The pacing is surprisingly natural.</td>
-      <td>Cleanest prompt match in this run.</td>
     </tr>
     <tr>
       <td>Serious warning</td>
@@ -139,7 +138,6 @@ Here are the actual outputs from the local run. The generated text column is the
       <td><audio controls preload="metadata" src="./ref_misolabs_voiceover_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./03_serious_warning.wav"></audio></td>
       <td>No, pause the rollout. If this fails in production, the recovery path is going to be painful.</td>
-      <td>ASR spot-check did not match the generated text reliably; treat as drifted.</td>
     </tr>
     <tr>
       <td>Sad reflective</td>
@@ -147,7 +145,6 @@ Here are the actual outputs from the local run. The generated text column is the
       <td><audio controls preload="metadata" src="./ref_misolabs_teacher_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./04_sad_reflective.wav"></audio></td>
       <td>I thought the result would be cleaner by now, but this still gives us useful signal.</td>
-      <td>ASR spot-check did not match the generated text reliably; treat as drifted.</td>
     </tr>
     <tr>
       <td>Fast product update</td>
@@ -155,10 +152,11 @@ Here are the actual outputs from the local run. The generated text column is the
       <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./05_fast_product_update.wav"></audio></td>
       <td>Quick update. I generated five local samples, logged the timings, and saved everything under artifacts.</td>
-      <td>Partially recognizable, clipped by the short output cap.</td>
     </tr>
   </tbody>
 </table>
+
+Notes from the ASR spot-check: the excited demo was the cleanest prompt match; calm assistant and fast product update were partially recognizable but clipped by the short output cap; serious warning and sad reflective drifted badly from the requested generated text.
 
 ## The useful part: it actually produced files
 
