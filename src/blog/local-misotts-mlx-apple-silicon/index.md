@@ -1,6 +1,6 @@
 ---
 layout: post.njk
-title: "I Ran MisoTTS Locally on Apple Silicon. It Worked, But It Was Not Real-Time."
+title: "MisoTTS on Apple Silicon: Local TTS Works, But Not in Real Time"
 description: "A practical MisoTTS MLX run on local hardware: five voice samples, load time, generation speed, memory usage, audio outputs, and playback-ready blog samples."
 date: 2026-06-09
 cover: "./cover.png"
@@ -13,31 +13,19 @@ tags:
   - "benchmark"
 ---
 
-I wanted to test a very simple thing:
+Local TTS sounds great in theory: no API calls, no vendor lock-in, no waiting on a hosted demo, and full control over the generated audio.
 
-> Can I run MisoTTS locally, generate a few emotionally different voice samples, and get usable audio without depending on a hosted demo?
+MisoTTS looks especially interesting because it can use both text and audio context, which makes it useful for more than plain text-to-speech. The real question is whether that promise holds up on a local Apple Silicon setup.
 
-Short answer: **yes, it generated files locally**.
+This test runs MisoTTS through MLX, generates real WAV files, measures speed and memory use, and checks where the output holds together or falls apart.
 
-Longer answer: the local MLX path worked reliably as a run, but it was not real-time, and a couple of generations did not follow the requested text cleanly.
-
-This is not a polished academic benchmark. It is the kind of test I actually care about as a builder: install it, run it, produce audio, measure how painful it is, and keep the artifacts.
+The result: local generation works, but it is not real-time here, text fidelity is uneven, and voice cloning only becomes usable with a carefully controlled workflow.
 
 ![](./cover.png)
 
-## What I tested
+## What was tested
 
-I used a local MLX version of MisoTTS and generated five short WAV files.
-
-The goal was not to find the best possible voice. The goal was to stress a few common speaking styles:
-
-| Sample | Intent |
-| --- | --- |
-| `01_calm_assistant.wav` | calm assistant voice |
-| `02_excited_demo.wav` | excited product demo voice |
-| `03_serious_warning.wav` | serious warning voice |
-| `04_sad_reflective.wav` | sad reflective voice |
-| `05_fast_product_update.wav` | faster product update voice |
+A local MLX version of MisoTTS generated five short WAV files across a few common speaking styles: calm assistant, excited demo, serious warning, sad reflective, and fast product update.
 
 Each output was **6.48 seconds** long because the run capped audio at about 6.5 seconds.
 
@@ -47,17 +35,11 @@ MisoTTS is an **8B text-to-speech model from Miso Labs**. The useful thing about
 
 According to the [Miso Labs release post](https://www.misolabs.ai/blog/miso-tts-8b), the model uses a hierarchical RVQ transformer design: a **7.7B-parameter backbone** models the text/audio sequence and predicts the first audio codebook, while a **300M-parameter decoder** predicts the remaining codebooks across RVQ depth. The [Hugging Face model card](https://huggingface.co/MisoLabs/MisoTTS/blob/main/README.md) describes the released model as a Sesame-style CSM architecture with a Llama-style backbone, a smaller autoregressive audio decoder, **32 audio codebooks**, **2,051 audio vocabulary**, Mimi audio tokenizer, and a max sequence length of **2,048**.
 
-![](./misotts-architecture.svg)
+![MisoTTS flow from text prompt and reference audio to generated WAV speech](./misotts-text-reference-audio.jpg)
 
 In simpler words: MisoTTS does not directly predict a waveform sample-by-sample. It predicts compact audio codes. Those codes are then decoded back into speech. The RVQ part matters because it lets the model represent a much wider space of speech sounds without using one enormous flat audio vocabulary.
 
 ## The local run
-
-The local model path was:
-
-```txt
-tmp/misotts_mlx/model
-```
 
 The model loaded in about **10.1 seconds**. After that, each sample produced a WAV file.
 
@@ -82,7 +64,7 @@ This was the actual local setup:
 
 ![](./local-infra.svg)
 
-The run used the local model under `tmp/misotts_mlx/model` and wrote outputs to:
+The run wrote outputs to:
 
 ```txt
 artifacts/misotts_mlx_local/experiments_2026_06_08/
@@ -166,22 +148,69 @@ This sounds obvious, but for local AI tooling this is the whole game.
 
 A hosted demo can look nice and still be useless if the queue is down, the backend is broken, or the UI hides the error. A local run that writes WAV files is boring in the best possible way.
 
-The output folder had:
-
-```txt
-01_calm_assistant.wav
-02_excited_demo.wav
-03_serious_warning.wav
-04_sad_reflective.wav
-05_fast_product_update.wav
-run_log.txt
-```
+The output folder had five generated audio files plus the timing log.
 
 The important thing is that all five samples completed and were saved cleanly. That does **not** mean all five were good readings of the requested prompt. In this run, the excited demo was the cleanest prompt match, calm assistant and fast product update were partially recognizable but clipped by the short output cap, and the serious warning plus sad reflective clips drifted badly.
 
+## Voice cloning follow-up
+
+After the first run, MisoTTS was also tested as a local voice-cloning system instead of just a style-conditioned TTS system.
+
+This was the more useful workflow:
+
+- use a clean **8 second reference** clip,
+- pass matching `ref_text`,
+- set `voice_match=True`,
+- split the target paragraph into sentences,
+- generate each sentence separately,
+- concatenate the WAV chunks afterward.
+
+That worked better than asking the model to generate the whole paragraph in one shot. Longer reference clips and full-paragraph generation were less stable in these local tests.
+
+The target was the same short paragraph beginning with: "Fable 5 is a serious frontier release..."
+
+<div class="audio-table-wrap">
+<table class="audio-comparison-table">
+  <thead>
+    <tr>
+      <th>Voice</th>
+      <th>Reference text</th>
+      <th>Reference audio</th>
+      <th>Generated audio</th>
+      <th>Generation notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>HSBC announcer</td>
+      <td>Clean 8 second reference segment from the announcer sample.</td>
+      <td><audio controls preload="metadata" src="./ref_hsbc_announcer_8s.wav"></audio></td>
+      <td><audio controls preload="metadata" src="./clone_hsbc_fable_paragraph.wav"></audio></td>
+      <td>19.84s output. This was the best voice-clone result from the follow-up run.</td>
+    </tr>
+    <tr>
+      <td>Porsche ad read</td>
+      <td>Clean 8 second reference segment from the Porsche Macan sample.</td>
+      <td><audio controls preload="metadata" src="./ref_tpx_porsche_8s.wav"></audio></td>
+      <td><audio controls preload="metadata" src="./clone_tpx_porsche_fable_paragraph.wav"></audio></td>
+      <td>22.80s output. Generated with the same sentence-by-sentence clone workflow.</td>
+    </tr>
+    <tr>
+      <td>Alan Cross / Porter</td>
+      <td>Clean 8 second reference segment from the Porter sample.</td>
+      <td><audio controls preload="metadata" src="./ref_tpx_alancross_8s.wav"></audio></td>
+      <td><audio controls preload="metadata" src="./clone_tpx_alancross_fable_paragraph.wav"></audio></td>
+      <td>18.00s output. Generated successfully, but still needs human listening judgment.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+The important lesson: `voice_match=True` is not magic. It can work, but the workflow matters a lot. In this local MLX setup, short clean references plus sentence-level generation were much more reliable than long references or one-shot long-form cloning.
+
 ## Extra listening references
 
-I also had a few older benchmark samples lying around from other TTS systems. These are useful as listening references, but they are **not** a clean apples-to-apples benchmark because they were not generated from the same five MisoTTS prompts above. I am not using these as transcript-verified comparisons; they are here only as audio references.
+A few older benchmark samples from other TTS systems are useful as listening references, but they are **not** a clean apples-to-apples benchmark because they were not generated from the same five MisoTTS prompts above. These are not transcript-verified comparisons; they are here only as audio references.
 
 Still, they help answer the real social-media question:
 
@@ -195,7 +224,6 @@ Notes:
 
 - source: older ElevenLabs v3 benchmark sample
 - duration: 10.00s
-- file: `compare_elevenlabs_v3_10s.wav`
 
 ### OpenAI Alloy sample
 
@@ -205,7 +233,6 @@ Notes:
 
 - source: older OpenAI TTS Alloy benchmark sample
 - duration: 6.96s
-- file: `compare_openai_alloy.wav`
 
 ### Sesame CSM sample
 
@@ -215,24 +242,8 @@ Notes:
 
 - source: older Sesame CSM benchmark sample
 - duration: 10.00s
-- file: `compare_sesame_csm_10s.wav`
 
 <aside class="article-callout">
   <strong>Important</strong>
   <p>The MisoTTS samples above are from this local MLX run. The ElevenLabs, OpenAI, and Sesame clips are previous benchmark artifacts. A fair ranking needs a follow-up run where every model speaks the exact same text.</p>
 </aside>
-
-## What I would test next
-
-This first run answered the basic question: local MisoTTS generation works.
-
-The next useful tests would be:
-
-- compare it against ElevenLabs, OpenAI TTS, and Piper on the same text,
-- test longer paragraphs instead of 6.48 second clips,
-- measure whether batch generation improves throughput,
-- try different voices and prompts for emotional control,
-- profile where the generation time is actually going,
-- check whether quantization or smaller variants reduce memory without ruining quality.
-
-I would also like to test streaming. A model can be slow overall and still feel usable if it starts speaking quickly enough. This run only measured completed WAV generation, not time-to-first-audio.
