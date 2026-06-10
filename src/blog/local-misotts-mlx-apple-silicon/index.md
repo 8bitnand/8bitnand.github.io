@@ -85,7 +85,7 @@ The model load happened once. Then each case generated one WAV file and appended
 
 ## The audio samples
 
-Here are the actual outputs from the local run. The generated text column is the target prompt sent to the model, not a verified transcript of the generated audio. The reference text column is the `ref_text` argument used by the script, not a verified transcript of the reference audio.
+Here are the actual outputs from the local run. The reference audio is the voice/style prompt given to the model. The generated text column is the target prompt sent to the model, not a verified transcript of the generated audio.
 
 ### MisoTTS sample comparison table
 
@@ -94,7 +94,6 @@ Here are the actual outputs from the local run. The generated text column is the
   <thead>
     <tr>
       <th>Sample</th>
-      <th>Reference text</th>
       <th>Reference audio</th>
       <th>Generated audio</th>
       <th>Generated text</th>
@@ -103,35 +102,30 @@ Here are the actual outputs from the local run. The generated text column is the
   <tbody>
     <tr>
       <td>Calm assistant</td>
-      <td>I just heard the news, and I honestly cannot stop smiling right now!</td>
       <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./01_calm_assistant.wav"></audio></td>
       <td>Here is the short version. The local model is stable, but the hosted Space still needs a separate reliability check.</td>
     </tr>
     <tr>
       <td>Excited demo</td>
-      <td>I just heard the news, and I honestly cannot stop smiling right now!</td>
       <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./02_excited_demo.wav"></audio></td>
       <td>Wait, this sounds much better than I expected. The pacing is surprisingly natural.</td>
     </tr>
     <tr>
       <td>Serious warning</td>
-      <td>No, stop. I am serious now. That is absolutely not acceptable.</td>
       <td><audio controls preload="metadata" src="./ref_misolabs_voiceover_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./03_serious_warning.wav"></audio></td>
       <td>No, pause the rollout. If this fails in production, the recovery path is going to be painful.</td>
     </tr>
     <tr>
       <td>Sad reflective</td>
-      <td>I do not know what to say. I really thought things would be different.</td>
       <td><audio controls preload="metadata" src="./ref_misolabs_teacher_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./04_sad_reflective.wav"></audio></td>
       <td>I thought the result would be cleaner by now, but this still gives us useful signal.</td>
     </tr>
     <tr>
       <td>Fast product update</td>
-      <td>I just heard the news, and I honestly cannot stop smiling right now!</td>
       <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
       <td><audio controls preload="metadata" src="./05_fast_product_update.wav"></audio></td>
       <td>Quick update. I generated five local samples, logged the timings, and saved everything under artifacts.</td>
