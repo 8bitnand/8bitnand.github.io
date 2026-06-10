@@ -17,9 +17,9 @@ I wanted to test a very simple thing:
 
 > Can I run MisoTTS locally, generate a few emotionally different voice samples, and get usable audio without depending on a hosted demo?
 
-Short answer: **yes**.
+Short answer: **yes, it generated files locally**.
 
-Longer answer: the local MLX path worked reliably, but it was not real-time.
+Longer answer: the local MLX path worked reliably as a run, but it was not real-time, and a couple of generations did not follow the requested text cleanly.
 
 This is not a polished academic benchmark. It is the kind of test I actually care about as a builder: install it, run it, produce audio, measure how painful it is, and keep the artifacts.
 
@@ -39,7 +39,7 @@ The goal was not to find the best possible voice. The goal was to stress a few c
 | `04_sad_reflective.wav` | sad reflective voice |
 | `05_fast_product_update.wav` | faster product update voice |
 
-Each output was **6.48 seconds** long.
+Each output was **6.48 seconds** long because the run capped audio at about 6.5 seconds.
 
 ## What MisoTTS is
 
@@ -59,7 +59,7 @@ The local model path was:
 tmp/misotts_mlx/model
 ```
 
-The model loaded in about **10.1 seconds**. After that, each sample generated successfully.
+The model loaded in about **10.1 seconds**. After that, each sample produced a WAV file.
 
 | Sample | Duration | Generation time | Real-time factor | Peak memory |
 | --- | ---: | ---: | ---: | ---: |
@@ -69,11 +69,11 @@ The model loaded in about **10.1 seconds**. After that, each sample generated su
 | sad reflective | 6.48s | 29.94s | 4.61x | 11.08 GB |
 | fast product update | 6.48s | 28.46s | 4.38x | 11.08 GB |
 
-That means the run was stable, but slow. The fastest sample still took roughly **4x the audio duration** to generate. The slowest one took more than **5.6x**.
+That means the run was stable at the file-generation level, but slow. The fastest sample still took roughly **4x the audio duration** to generate. The slowest one took more than **5.6x**.
 
 <aside class="article-callout">
   <strong>Result</strong>
-  <p>Local MisoTTS on MLX generated 5/5 samples successfully. It was reliable, but not fast enough for real-time voice applications in this setup.</p>
+  <p>Local MisoTTS on MLX wrote 5/5 WAV files successfully. It was reliable as a local generation run, but not fast enough for real-time voice applications in this setup, and the output text fidelity was mixed.</p>
 </aside>
 
 ## The local infra
@@ -103,7 +103,7 @@ The model load happened once. Then each case generated one WAV file and appended
 
 ## The audio samples
 
-Here are the actual outputs from the local run. The text below each player is the prompt that was sent to the model, not a verified transcript of the audio. A couple of clips drifted from the requested text, which is useful to hear as part of the local-run result.
+Here are the actual outputs from the local run. The text below each player is the target prompt sent to the model, not a verified transcript of the generated audio. I also include the reference audio that was passed for style/context. I am not showing the `ref_text` strings as transcripts because they were script arguments, not verified reference-audio transcripts.
 
 ### Calm assistant
 
@@ -113,13 +113,9 @@ Prompt sent:
 
 > Here is the short version. The local model is stable, but the hosted Space still needs a separate reliability check.
 
-Reference style audio:
+Reference audio used:
 
 <audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
-
-Reference transcript:
-
-> I just heard the news, and I honestly cannot stop smiling right now!
 
 ### Excited demo
 
@@ -129,13 +125,9 @@ Prompt sent:
 
 > Wait, this sounds much better than I expected. The pacing is surprisingly natural.
 
-Reference style audio:
+Reference audio used:
 
 <audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
-
-Reference transcript:
-
-> I just heard the news, and I honestly cannot stop smiling right now!
 
 ### Serious warning
 
@@ -145,17 +137,13 @@ Prompt sent:
 
 > No, pause the rollout. If this fails in production, the recovery path is going to be painful.
 
-Transcript check:
+ASR spot-check:
 
 > Automatic ASR did not match this prompt reliably. Treat this clip as a failed/drifted generation, not a clean reading of the line above.
 
-Reference style audio:
+Reference audio used:
 
 <audio controls preload="metadata" src="./ref_misolabs_voiceover_sample.wav"></audio>
-
-Reference transcript:
-
-> No, stop. I am serious now. That is absolutely not acceptable.
 
 ### Sad reflective
 
@@ -165,17 +153,13 @@ Prompt sent:
 
 > I thought the result would be cleaner by now, but this still gives us useful signal.
 
-Transcript check:
+ASR spot-check:
 
 > Automatic ASR did not match this prompt reliably. Treat this clip as a failed/drifted generation, not a clean reading of the line above.
 
-Reference style audio:
+Reference audio used:
 
 <audio controls preload="metadata" src="./ref_misolabs_teacher_sample.wav"></audio>
-
-Reference transcript:
-
-> I do not know what to say. I really thought things would be different.
 
 ### Fast product update
 
@@ -185,13 +169,9 @@ Prompt sent:
 
 > Quick update. I generated five local samples, logged the timings, and saved everything under artifacts.
 
-Reference style audio:
+Reference audio used:
 
 <audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
-
-Reference transcript:
-
-> I just heard the news, and I honestly cannot stop smiling right now!
 
 ## The useful part: it actually produced files
 
@@ -210,11 +190,11 @@ The output folder had:
 run_log.txt
 ```
 
-The important thing is that all five samples completed and were saved cleanly.
+The important thing is that all five samples completed and were saved cleanly. That does **not** mean all five were good readings of the requested prompt. In this run, the excited demo was the cleanest prompt match, calm assistant and fast product update were partially recognizable but clipped by the short output cap, and the serious warning plus sad reflective clips drifted badly.
 
 ## Extra listening references
 
-I also had a few older benchmark samples lying around from other TTS systems. These are useful as listening references, but they are **not** a clean apples-to-apples benchmark because they were not generated from the same five MisoTTS prompts above.
+I also had a few older benchmark samples lying around from other TTS systems. These are useful as listening references, but they are **not** a clean apples-to-apples benchmark because they were not generated from the same five MisoTTS prompts above. I am not using these as transcript-verified comparisons; they are here only as audio references.
 
 Still, they help answer the real social-media question:
 
@@ -223,10 +203,6 @@ Still, they help answer the real social-media question:
 ### ElevenLabs v3 sample
 
 <audio controls preload="metadata" src="./compare_elevenlabs_v3_10s.wav"></audio>
-
-Transcript:
-
-> Okay, so like I finally beat level 42 of that game I said I'd quit like a month ago and then for the final big scary mega-boss, it's just... Ahhh Ahhh Ahhh Ahhh Ahhh Ahhh Ahhh Ahhh
 
 Notes:
 
@@ -238,10 +214,6 @@ Notes:
 
 <audio controls preload="metadata" src="./compare_openai_alloy.wav"></audio>
 
-Transcript:
-
-> The sun rises in the east and sets in the west. This simple fact has been observed by humans for thousands of years.
-
 Notes:
 
 - source: older OpenAI TTS Alloy benchmark sample
@@ -251,10 +223,6 @@ Notes:
 ### Sesame CSM sample
 
 <audio controls preload="metadata" src="./compare_sesame_csm_10s.wav"></audio>
-
-Transcript:
-
-> Sounds like you have a real heart for other people. No one's ever accused me of that before. Oh no, now you're remain half. Yet.
 
 Notes:
 
