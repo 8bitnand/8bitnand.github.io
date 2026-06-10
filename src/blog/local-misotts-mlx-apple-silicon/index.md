@@ -103,13 +103,13 @@ The model load happened once. Then each case generated one WAV file and appended
 
 ## The audio samples
 
-Here are the actual outputs from the local run. I am including the exact text below each player so you can judge whether the generated voice matched the intended tone.
+Here are the actual outputs from the local run. The text below each player is the prompt that was sent to the model, not a verified transcript of the audio. A couple of clips drifted from the requested text, which is useful to hear as part of the local-run result.
 
 ### Calm assistant
 
 <audio controls preload="metadata" src="./01_calm_assistant.wav"></audio>
 
-Generated text:
+Prompt sent:
 
 > Here is the short version. The local model is stable, but the hosted Space still needs a separate reliability check.
 
@@ -121,7 +121,7 @@ Reference style:
 
 <audio controls preload="metadata" src="./02_excited_demo.wav"></audio>
 
-Generated text:
+Prompt sent:
 
 > Wait, this sounds much better than I expected. The pacing is surprisingly natural.
 
@@ -133,9 +133,13 @@ Reference style:
 
 <audio controls preload="metadata" src="./03_serious_warning.wav"></audio>
 
-Generated text:
+Prompt sent:
 
 > No, pause the rollout. If this fails in production, the recovery path is going to be painful.
+
+Transcript check:
+
+> Automatic ASR did not match this prompt reliably. Treat this clip as a failed/drifted generation, not a clean reading of the line above.
 
 Reference style:
 
@@ -145,9 +149,13 @@ Reference style:
 
 <audio controls preload="metadata" src="./04_sad_reflective.wav"></audio>
 
-Generated text:
+Prompt sent:
 
 > I thought the result would be cleaner by now, but this still gives us useful signal.
+
+Transcript check:
+
+> Automatic ASR did not match this prompt reliably. Treat this clip as a failed/drifted generation, not a clean reading of the line above.
 
 Reference style:
 
@@ -157,7 +165,7 @@ Reference style:
 
 <audio controls preload="metadata" src="./05_fast_product_update.wav"></audio>
 
-Generated text:
+Prompt sent:
 
 > Quick update. I generated five local samples, logged the timings, and saved everything under artifacts.
 
