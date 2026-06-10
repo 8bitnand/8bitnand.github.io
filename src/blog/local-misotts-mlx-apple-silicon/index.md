@@ -103,75 +103,62 @@ The model load happened once. Then each case generated one WAV file and appended
 
 ## The audio samples
 
-Here are the actual outputs from the local run. The text below each player is the target prompt sent to the model, not a verified transcript of the generated audio. I also include the reference audio that was passed for style/context. I am not showing the `ref_text` strings as transcripts because they were script arguments, not verified reference-audio transcripts.
+Here are the actual outputs from the local run. The generated text column is the target prompt sent to the model, not a verified transcript of the generated audio. The reference text column is the `ref_text` argument used by the script, not a verified transcript of the reference audio.
 
-### Calm assistant
-
-<audio controls preload="metadata" src="./01_calm_assistant.wav"></audio>
-
-Prompt sent:
-
-> Here is the short version. The local model is stable, but the hosted Space still needs a separate reliability check.
-
-Reference audio used:
-
-<audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
-
-### Excited demo
-
-<audio controls preload="metadata" src="./02_excited_demo.wav"></audio>
-
-Prompt sent:
-
-> Wait, this sounds much better than I expected. The pacing is surprisingly natural.
-
-Reference audio used:
-
-<audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
-
-### Serious warning
-
-<audio controls preload="metadata" src="./03_serious_warning.wav"></audio>
-
-Prompt sent:
-
-> No, pause the rollout. If this fails in production, the recovery path is going to be painful.
-
-ASR spot-check:
-
-> Automatic ASR did not match this prompt reliably. Treat this clip as a failed/drifted generation, not a clean reading of the line above.
-
-Reference audio used:
-
-<audio controls preload="metadata" src="./ref_misolabs_voiceover_sample.wav"></audio>
-
-### Sad reflective
-
-<audio controls preload="metadata" src="./04_sad_reflective.wav"></audio>
-
-Prompt sent:
-
-> I thought the result would be cleaner by now, but this still gives us useful signal.
-
-ASR spot-check:
-
-> Automatic ASR did not match this prompt reliably. Treat this clip as a failed/drifted generation, not a clean reading of the line above.
-
-Reference audio used:
-
-<audio controls preload="metadata" src="./ref_misolabs_teacher_sample.wav"></audio>
-
-### Fast product update
-
-<audio controls preload="metadata" src="./05_fast_product_update.wav"></audio>
-
-Prompt sent:
-
-> Quick update. I generated five local samples, logged the timings, and saved everything under artifacts.
-
-Reference audio used:
-
-<audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio>
+<table>
+  <thead>
+    <tr>
+      <th>Sample</th>
+      <th>Reference text</th>
+      <th>Reference audio</th>
+      <th>Generated audio</th>
+      <th>Generated text</th>
+      <th>Check</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Calm assistant</td>
+      <td>I just heard the news, and I honestly cannot stop smiling right now!</td>
+      <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
+      <td><audio controls preload="metadata" src="./01_calm_assistant.wav"></audio></td>
+      <td>Here is the short version. The local model is stable, but the hosted Space still needs a separate reliability check.</td>
+      <td>Partially recognizable, clipped by the short output cap.</td>
+    </tr>
+    <tr>
+      <td>Excited demo</td>
+      <td>I just heard the news, and I honestly cannot stop smiling right now!</td>
+      <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
+      <td><audio controls preload="metadata" src="./02_excited_demo.wav"></audio></td>
+      <td>Wait, this sounds much better than I expected. The pacing is surprisingly natural.</td>
+      <td>Cleanest prompt match in this run.</td>
+    </tr>
+    <tr>
+      <td>Serious warning</td>
+      <td>No, stop. I am serious now. That is absolutely not acceptable.</td>
+      <td><audio controls preload="metadata" src="./ref_misolabs_voiceover_sample.wav"></audio></td>
+      <td><audio controls preload="metadata" src="./03_serious_warning.wav"></audio></td>
+      <td>No, pause the rollout. If this fails in production, the recovery path is going to be painful.</td>
+      <td>ASR spot-check did not match the generated text reliably; treat as drifted.</td>
+    </tr>
+    <tr>
+      <td>Sad reflective</td>
+      <td>I do not know what to say. I really thought things would be different.</td>
+      <td><audio controls preload="metadata" src="./ref_misolabs_teacher_sample.wav"></audio></td>
+      <td><audio controls preload="metadata" src="./04_sad_reflective.wav"></audio></td>
+      <td>I thought the result would be cleaner by now, but this still gives us useful signal.</td>
+      <td>ASR spot-check did not match the generated text reliably; treat as drifted.</td>
+    </tr>
+    <tr>
+      <td>Fast product update</td>
+      <td>I just heard the news, and I honestly cannot stop smiling right now!</td>
+      <td><audio controls preload="metadata" src="./ref_misolabs_friend_sample.wav"></audio></td>
+      <td><audio controls preload="metadata" src="./05_fast_product_update.wav"></audio></td>
+      <td>Quick update. I generated five local samples, logged the timings, and saved everything under artifacts.</td>
+      <td>Partially recognizable, clipped by the short output cap.</td>
+    </tr>
+  </tbody>
+</table>
 
 ## The useful part: it actually produced files
 
